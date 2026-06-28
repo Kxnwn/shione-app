@@ -92,7 +92,7 @@ export default function OnboardingScreen() {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1 })
     } else {
       // Last slide — go to Sign Up
-      router.replace('/(tabs)')
+      router.replace('/(auth)/signup')
     }
   }
 
@@ -103,7 +103,7 @@ export default function OnboardingScreen() {
 
       {/* Skip button */}
       <TouchableOpacity
-        onPress={() => router.replace('/signup')}
+        onPress={() => router.replace('/(auth)/signup')}
         className="absolute top-14 right-6 z-10"
       >
         <Text className="text-sub text-sm">Skip</Text>

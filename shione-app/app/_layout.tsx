@@ -12,11 +12,15 @@ export default function RootLayout() {
           options={{ headerShown: false }} 
         />
         <Stack.Screen 
-          name="(tabs)" 
+          name="onboarding" 
           options={{ headerShown: false }} 
         />
         <Stack.Screen 
-          name="onboarding" 
+          name="(auth)" 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="(tabs)" 
           options={{ headerShown: false }} 
         />
       </Stack>
