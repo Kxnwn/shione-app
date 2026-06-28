@@ -15,6 +15,10 @@ export default function RootLayout() {
           name="(tabs)" 
           options={{ headerShown: false }} 
         />
+        <Stack.Screen 
+          name="onboarding" 
+          options={{ headerShown: false }} 
+        />
       </Stack>
       <StatusBar style="light" />
     </>
