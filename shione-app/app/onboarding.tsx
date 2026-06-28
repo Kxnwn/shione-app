@@ -74,7 +74,7 @@ function Dots({ current }: { current: number }) {
   )
 }
 
-// ── Main Onboarding Screen ───────────────────────────────
+// ── Main Onboarding Screen ni idol ───────────────────────────────
 export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const flatListRef = useRef<FlatList>(null)

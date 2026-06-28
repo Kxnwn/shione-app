@@ -48,7 +48,7 @@ export default function LoginScreen() {
             </Text>
           </MotiView>
 
-          {/* Shadow Card */}
+          {/* Shadow Cardssssssssss */}
           <MotiView
             from={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
