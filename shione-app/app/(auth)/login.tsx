@@ -3,6 +3,8 @@ import { MotiView } from 'moti'
 import { useState } from 'react'
 import { router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import PrimaryButton from '@/components/UI/PrimaryButton'
+import InputField from '@/components/UI/InputField'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
@@ -69,15 +71,15 @@ export default function LoginScreen() {
                 <Text className="text-deep text-sm font-semibold mb-2 ml-1">
                   Email
                 </Text>
-                <TextInput
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  placeholderTextColor="#5E7A8A"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  className="bg-cloud border border-soft rounded-2xl px-4 py-4 text-deep text-base"
-                />
+                <InputField 
+                value={email}
+                onChangeText={setEmail}
+                placeholder='Enter your email'
+                placeholderTextColor="#5E7A8A"
+                keyboardType='email-address'
+                autoCapitalize='none'
+                
+              />
               </View>
 
               {/* Password */}
@@ -86,14 +88,14 @@ export default function LoginScreen() {
                   Password
                 </Text>
                 <View>
-                  <TextInput
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="Enter your password"
-                    placeholderTextColor="#5E7A8A"
-                    secureTextEntry={!showPassword}
-                    className="bg-cloud border border-soft rounded-2xl px-4 py-4 text-deep text-base"
-                  />
+                  <InputField 
+                value={password}
+                onChangeText={setPassword}
+                placeholder='Enter a Password'
+                placeholderTextColor="#5E7A8A"
+                secureTextEntry={!showPassword}
+                
+              />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-4"
@@ -115,14 +117,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
 
               {/* Login Button */}
-              <TouchableOpacity
-                onPress={handleLogin}
-                className="bg-mid rounded-full py-4 items-center mt-2"
-              >
-                <Text className="text-white text-base font-bold tracking-wide">
-                  Log In →
-                </Text>
-              </TouchableOpacity>
+              <PrimaryButton title='Login'  onPress={handleLogin} />
 
             </View>
           </MotiView>

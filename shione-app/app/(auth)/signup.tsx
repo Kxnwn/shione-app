@@ -3,6 +3,8 @@ import { MotiView } from 'moti'
 import { useState } from 'react'
 import { router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import PrimaryButton from '@/components/UI/PrimaryButton'
+import InputField from '@/components/UI/InputField'
 
 export default function SignupScreen() {
   // State for each input field
@@ -67,12 +69,11 @@ export default function SignupScreen() {
               <Text className="text-deep text-sm font-semibold mb-2 ml-1">
                 Full Name
               </Text>
-              <TextInput
+              <InputField 
                 value={name}
                 onChangeText={setName}
-                placeholder="Enter your full name"
+                placeholder='Enter your full name'
                 placeholderTextColor="#5E7A8A"
-                className="bg-cloud border border-soft rounded-2xl px-4 py-4 text-deep text-base"
               />
             </View>
 
@@ -81,15 +82,16 @@ export default function SignupScreen() {
               <Text className="text-deep text-sm font-semibold mb-2 ml-1">
                 Email
               </Text>
-              <TextInput
+              <InputField 
                 value={email}
                 onChangeText={setEmail}
-                placeholder="Enter your email"
+                placeholder='Enter your email'
                 placeholderTextColor="#5E7A8A"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                className="bg-cloud border border-soft rounded-2xl px-4 py-4 text-deep text-base"
+                keyboardType='email-address'
+                autoCapitalize='none'
+                
               />
+              
             </View>
 
             {/* Password */}
@@ -98,14 +100,15 @@ export default function SignupScreen() {
                 Password
               </Text>
               <View>
-                <TextInput
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Create a password"
-                  placeholderTextColor="#5E7A8A"
-                  secureTextEntry={!showPassword}
-                  className="bg-cloud border border-soft rounded-2xl px-4 py-4 text-deep text-base"
-                />
+                <InputField 
+                value={password}
+                onChangeText={setPassword}
+                placeholder='Create a Password'
+                placeholderTextColor="#5E7A8A"
+                secureTextEntry={!showPassword}
+                
+              />
+                
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-4"
@@ -120,14 +123,7 @@ export default function SignupScreen() {
             </View>
 
             {/* Sign Up Button */}
-            <TouchableOpacity
-              onPress={handleSignup}
-              className="bg-mid rounded-full py-4 items-center mt-4"
-            >
-              <Text className="text-white text-base font-bold tracking-wide">
-                Sign Up →
-              </Text>
-            </TouchableOpacity>
+            <PrimaryButton title='Sign Up →'  onPress={handleSignup} />
 
           </View>
         </MotiView>

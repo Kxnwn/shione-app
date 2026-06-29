@@ -3,7 +3,8 @@ import { MotiView } from 'moti'
 import { useRef, useState } from 'react'
 import { FlatList } from 'react-native'
 import { router } from 'expo-router'
-
+import PrimaryButton from '@/components/UI/PrimaryButton'
+import InputField from '@/components/UI/InputField'
 // Get the phone's screen width
 const { width } = Dimensions.get('window')
 
@@ -132,14 +133,8 @@ export default function OnboardingScreen() {
           transition={{ type: 'spring' }}
           className="mt-8"
         >
-          <TouchableOpacity
-            onPress={handleNext}
-            className="bg-mid rounded-full py-4 items-center"
-          >
-            <Text className="text-white text-base font-bold tracking-wide">
-              {isLastSlide ? 'Get Started 🌱' : 'Next →'}
-            </Text>
-          </TouchableOpacity>
+          <PrimaryButton title={isLastSlide ? 'Get Started 🌱' : 'Next →'} onPress={handleNext} />
+          
         </MotiView>
       </View>
 
