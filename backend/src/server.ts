@@ -1,13 +1,11 @@
 import express from "express"
-
+import  authRoutes  from "./routes/auth.routes"
 const app = express();
 
 app.use(express.json());
 
 
-app.get("/", (req, res) => {
-    res.send("Hello from Shione backend!!")
-})
+app.use("/api/auth", authRoutes);
 
 app.listen(5000, () => {
     console.log("Server is running on port 5000")
