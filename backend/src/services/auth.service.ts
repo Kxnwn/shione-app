@@ -88,4 +88,13 @@ export const loginUserService = async (email: string, password: string)  => {
 
 }
 
+export const logoutUserService = ((
+    req: Request,
+    res: Response
+) => {
+    res.status(200).json({
+        message: "Logout Successful"
+    })
+})
+
 
