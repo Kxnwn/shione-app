@@ -12,7 +12,18 @@ model User {
   name      String
   email     String   @unique
   password  String
+  moods Mood[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Mood {
+    id        Int      @id @default(autoincrement())
+    mood      String
+    note      String?
+    createdAt DateTime @default(now())
+
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id])
 }

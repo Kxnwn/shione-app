@@ -1,7 +1,8 @@
-import prisma from "../config/prisma"
+import prisma from "../config/prisma.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from 'dotenv'
+import { Request, Response } from "express"
 dotenv.config()
 
 
@@ -88,13 +89,11 @@ export const loginUserService = async (email: string, password: string)  => {
 
 }
 
-export const logoutUserService = ((
+export const logoutUser = (
     req: Request,
     res: Response
 ) => {
     res.status(200).json({
-        message: "Logout Successful"
-    })
-})
-
-
+        message: "Logout successful."
+    });
+};
