@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createMoodService, getMoodService, updateMoodService } from "../services/mood.service.js"
+import { createMoodService, getMoodService, updateMoodService, deleteMoodService } from "../services/mood.service.js"
 
 
 
@@ -58,20 +58,32 @@ export const updateMood = async (req: Request, res: Response) => {
     }
 }
 
-//export const deleteMood = async (req: Request, res: Response) => {
-   // const userId = req.user.id
-    //const moodId = Number(req.params.id)    
+export const deleteMood = async( req: Request, res: Response) => {
+    const moodId = Number(req.params.id)
+    const userId = req.user.id
 
- //   try {
-   //     const result = await deleteMoodService(
-  //          moodId,
-  //          userId
- //       )
+    try {
+        const result = await deleteMoodService (
+            moodId,
+            userId
+        )
 
-//        res.status(200).json({
- //           message: "Delete mood successful", deletedMood: result
- //       })
-//    } catch (error) {
-//        res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
-//  }
-//}
+        res.status(200).json({
+            message: "successfully deleted", deletedMood: result
+        })
+    } catch (error) {
+        res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

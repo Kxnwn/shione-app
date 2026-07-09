@@ -60,6 +60,32 @@ export const updateMoodService = async (
     return updatedMood;
 }
 
+export const deleteMoodService = async (
+    moodId: number,
+    userId: number
+) => {
+    const deleteMood = await prisma.mood.findUnique({
+        where:{
+            id: moodId
+        } 
+    })
+
+    if(!deleteMood){
+        throw new Error("Mood not found")
+    }
+
+    if(deleteMood.userId !== userId){
+        throw new Error("This is not your mood you cannot delete this!")
+    }
+
+    const deletedMood = await prisma.mood.delete({
+        where: {
+            id: moodId
+        }
+    })
+
+    return deletedMood;
+}
 
 
 
@@ -69,30 +95,3 @@ export const updateMoodService = async (
 
 
 
-
-//export const deleteMoodService = async(
-   // moodId: number,
-   // userId: number
-//) => {
-  //  const deleteMood = await prisma.mood.findUnique({
-   //     where: {
-     //       id: moodId
-   //     }
-    //})
-
- //   if(!deleteMood) {
-   //     throw new Error("Mood not found")
-   // }
-
-   // if (deleteMood.userId !== userId) {
-     //   throw new Error("This is note your note, action prohibited.")
-  //  }
-
-   // const deletedMood = await prisma.mood.delete({
-      //  where: {
-         //   id: moodId
-      //  }
-    //})
-
-    //return deletedMood;
-//}
