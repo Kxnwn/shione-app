@@ -5,6 +5,7 @@ import { router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import PrimaryButton from '@/components/UI/PrimaryButton'
 import InputField from '@/components/UI/InputField'
+import { registerUser } from '@/services/auth.service'
 
 export default function SignupScreen() {
   // State for each input field
@@ -14,10 +15,13 @@ export default function SignupScreen() {
   const [showPassword, setShowPassword] = useState(false)
 
   // Handle sign up button press
-  const handleSignup = () => {
-    // For now just go to main app
-    // Later we'll connect this to our backend
-    router.replace('/(tabs)')
+  const handleSignup = async () => {
+    try {
+      const result = await registerUser(name, email, password)
+      console.log(result)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (

@@ -5,14 +5,20 @@ import { router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import PrimaryButton from '@/components/UI/PrimaryButton'
 import InputField from '@/components/UI/InputField'
+import { loginUser } from '@/services/auth.service'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleLogin = () => {
-    router.replace('/(tabs)')
+  const handleLogin = async () => {
+   try {
+    const result = await loginUser(email, password)
+    console.log(result)
+  } catch (error) {
+    console.log(error)
+  }
   }
 
   return (
