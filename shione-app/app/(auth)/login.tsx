@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons'
 import PrimaryButton from '@/components/UI/PrimaryButton'
 import InputField from '@/components/UI/InputField'
 import { loginUser } from '@/services/auth.service'
+import { getToken, saveToken } from '@/services/storage/auth.storage'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
@@ -15,7 +16,14 @@ export default function LoginScreen() {
   const handleLogin = async () => {
    try {
     const result = await loginUser(email, password)
-    console.log(result)
+
+    await saveToken(result.token)
+
+    const token = await getToken()
+
+    console.log(token)
+    
+    router.replace("/(tabs)")
   } catch (error) {
     console.log(error)
   }

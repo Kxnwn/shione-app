@@ -18,7 +18,10 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     try {
       const result = await registerUser(name, email, password)
+      
       console.log(result)
+
+      router.replace("/(auth)/login")
     } catch (error) {
       console.log(error)
     }
