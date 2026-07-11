@@ -1,4 +1,6 @@
-import { View, Text } from "react-native";
+import { View, Text, Dimensions } from "react-native";
+
+const {width} = Dimensions.get("window")
 
 type SlideProps = {
     emoji: string;
@@ -12,7 +14,7 @@ export default function Slide({
     subtitle,
 }: SlideProps) {
     return (
-        <View className="items-center px-8">
+        <View style={{width}} className="flex-1 justify-center items-center px-8">
             <Text className="text-8xl">{emoji}</Text>
 
             <Text className="text-4xl font-bold text-[#8854C0] text-center mt-8">

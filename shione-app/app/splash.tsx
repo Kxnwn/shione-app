@@ -1,8 +1,24 @@
 import { View, Text } from 'react-native'
 import { MotiView } from 'moti'
+import { useEffect } from 'react'
+import { router } from 'expo-router';
+
+
+
 
 
 export default function SplashScreen() {
+
+    useEffect(() => {
+    const timer = setTimeout(() => {
+        router.replace('/onboarding')
+    }, 3000);
+
+    return () => clearTimeout(timer)
+})
+
+
+
     return(
         <View className='flex-1 bg-[#FEFFE1] items-center justify-center'>
             <MotiView
@@ -11,7 +27,7 @@ export default function SplashScreen() {
                     translateY: 20
                 }}
                 animate={{
-                    opacity: 1,
+                    opacity: 1  ,
                     translateY: 0
                 }}
                 transition={{
