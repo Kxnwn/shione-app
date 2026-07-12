@@ -7,23 +7,64 @@ import PrimaryButton from '@/components/UI/PrimaryButton'
 import InputField from '@/components/UI/InputField'
 import { registerUser } from '@/services/auth.service'
 
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function SignupScreen() {
   // State for each input field
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [nameError, setNameError] = useState("")
+  const [emailError, setEmailError] = useState("")
+  const [passwordError, setPasswordError] = useState("")
+
+
 
   // Handle sign up button press
   const handleSignup = async () => {
     try {
+
+      setError("")
+     
+      let hasError = false
+
+      if(name.trim() === ""){
+        setNameError("Fullname is Required.")
+        hasError = true
+      }
+      if (email.trim() === "") {
+          setEmailError("Email is required.")
+          hasError = true
+        } else if (!emailRegex.test(email)) {
+           setEmailError("Please enter a valid email address.")
+           hasError = true
+      }
+
+
+      if (password.trim() === "") {
+          setPasswordError("Password is Required.");
+            hasError = true;
+      } else if (password.length < 8) {
+            setPasswordError("Password must be at least 8 characters.");
+            hasError = true;
+     }   
+
+      if(hasError) return
+
+      setLoading(true)
+
       const result = await registerUser(name, email, password)
       
       console.log(result)
 
       router.replace("/(auth)/login")
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+       setError(error.response?.data?.message || "Something went wrong")
+    } finally{
+      setLoading(false)
     }
   }
 
@@ -78,11 +119,21 @@ export default function SignupScreen() {
               </Text>
               <InputField 
                 value={name}
-                onChangeText={setName}
+                onChangeText={(text) => {
+                setName(text)
+                setNameError("")
+                setError("")
+                  }}
                 placeholder='Enter your full name'
                 placeholderTextColor="#5E7A8A"
               />
             </View>
+
+            {
+                nameError ? (
+                  <Text className='text-red-500'>{nameError}</Text>
+                ) : null
+              }
 
             {/* Email */}
             <View>
@@ -91,7 +142,11 @@ export default function SignupScreen() {
               </Text>
               <InputField 
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text)
+                  setEmailError
+                  setError("")
+                }}
                 placeholder='Enter your email'
                 placeholderTextColor="#5E7A8A"
                 keyboardType='email-address'
@@ -100,6 +155,11 @@ export default function SignupScreen() {
               />
               
             </View>
+              {
+                emailError ? (
+                  <Text className='text-red-500'>{emailError}</Text>
+                ) : null
+              }
 
             {/* Password */}
             <View>
@@ -109,11 +169,14 @@ export default function SignupScreen() {
               <View>
                 <InputField 
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text)
+                  setPasswordError("")
+                  setError("")
+                }}
                 placeholder='Create a Password'
                 placeholderTextColor="#5E7A8A"
                 secureTextEntry={!showPassword}
-                
               />
                 
                 <TouchableOpacity
@@ -129,8 +192,15 @@ export default function SignupScreen() {
               </View>
             </View>
 
+              {
+                passwordError ? (
+                  <Text className='text-red-500'>{passwordError}</Text>
+                ) : null
+              }
+
+
             {/* Sign Up Button */}
-            <PrimaryButton title='Sign Up →'  onPress={handleSignup} />
+            <PrimaryButton disabled={loading} title={loading ? "Signing in..." : "Sign Up →"}  onPress={handleSignup} />
 
           </View>
         </MotiView>

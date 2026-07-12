@@ -8,13 +8,40 @@ import InputField from '@/components/UI/InputField'
 import { loginUser } from '@/services/auth.service'
 import { getToken, saveToken } from '@/services/storage/auth.storage'
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [emailError, setEmailError] = useState("")
+  const [passwordError, setPasswordError] = useState("")
+  
 
   const handleLogin = async () => {
    try {
+    setError("")
+    
+    let hasError = false;
+
+    if (email.trim() === "") {
+    setEmailError("Email is required.")
+    hasError = true
+      } else if (!emailRegex.test(email)) {
+    setEmailError("Please enter a valid email address.")
+    hasError = true
+      }
+
+    if(password.trim() === "") {
+      setPasswordError("Password is Required.");
+      hasError = true
+    }
+
+    if(hasError) return
+
+    setLoading(true)
+
     const result = await loginUser(email, password)
 
     await saveToken(result.token)
@@ -24,8 +51,10 @@ export default function LoginScreen() {
     console.log(token)
     
     router.replace("/(tabs)")
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    setError(error.response?.data?.message || "Something went wrong")
+  } finally {
+    setLoading(false)
   }
   }
 
@@ -87,7 +116,11 @@ export default function LoginScreen() {
                 </Text>
                 <InputField 
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text)
+                  setError("")
+                  setEmailError("")
+                }}
                 placeholder='Enter your email'
                 placeholderTextColor="#5E7A8A"
                 keyboardType='email-address'
@@ -95,6 +128,12 @@ export default function LoginScreen() {
                 
               />
               </View>
+
+              {
+                emailError ? (
+                  <Text className='text-red-500'>{emailError}</Text>
+                ) : null
+              }
 
               {/* Password */}
               <View>
@@ -104,7 +143,11 @@ export default function LoginScreen() {
                 <View>
                   <InputField 
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text)
+                  setError("")
+                  setPasswordError("")
+                }}
                 placeholder='Enter a Password'
                 placeholderTextColor="#5E7A8A"
                 secureTextEntry={!showPassword}
@@ -122,7 +165,11 @@ export default function LoginScreen() {
                   </TouchableOpacity>
                 </View>
               </View>
-
+                {
+                passwordError ? (
+                  <Text className='text-red-500'>{passwordError}</Text>
+                ) : null
+              }
               {/* Forgot Password */}
               <TouchableOpacity className="self-end">
                 <Text className="text-mid text-sm font-semibold">
@@ -130,8 +177,11 @@ export default function LoginScreen() {
                 </Text>
               </TouchableOpacity>
 
+             
+
+
               {/* Login Button */}
-              <PrimaryButton title='Login'  onPress={handleLogin} />
+              <PrimaryButton disabled={loading} title={loading ? "Logging in..." : "Login"}  onPress={handleLogin} />
 
             </View>
           </MotiView>

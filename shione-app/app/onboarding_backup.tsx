@@ -107,7 +107,7 @@ export default function OnboardingScreen() {
         onPress={() => router.replace('/(auth)/signup')}
         className="absolute top-14 right-6 z-10"
       >
-        <Text className="text-sub">Ski →</Text>
+        <Text className="text-sub">Skip →</Text>
       </TouchableOpacity>
 
       {/* Slides */}
