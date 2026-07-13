@@ -2,20 +2,48 @@ import { View, Text } from 'react-native'
 import { MotiView } from 'moti'
 import { useEffect } from 'react'
 import { router } from 'expo-router';
+import { getToken } from '@/services/storage/auth.storage';
+import { getOnboarding } from '@/services/storage/onboarding.storage';
 
 
 
+const checkLogin = async () => {
+    try {
+        const token = await getToken()
 
+        console.log("TOKEN", token)
+
+        if (token) {
+            router.replace("/(tabs)")
+            return
+        }
+
+       const hasSeenOnboarding = await getOnboarding()
+
+       if(hasSeenOnboarding) {
+        router.replace("/(auth)/login")
+        return
+       }
+    
+    
+       router.replace("/onboarding")
+        
+        
+    } catch (error) {
+        console.log(error);
+    router.replace("/onboarding");
+    }
+}
 
 export default function SplashScreen() {
 
     useEffect(() => {
     const timer = setTimeout(() => {
-        router.replace('/onboarding')
+        checkLogin()
     }, 3000);
 
     return () => clearTimeout(timer)
-})
+}, [])
 
 
 

@@ -4,8 +4,18 @@ import { FlatList, TouchableOpacity } from "react-native";
 import { useState, useRef } from "react";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import { router } from "expo-router";
+import { removeToken } from "@/services/storage/auth.storage";
+import { saveOnboarding, getOnboarding, removeOnboarding } from "@/services/storage/onboarding.storage";
 
+const handleLogout = async () => {
+  try {
+    await removeToken();
 
+    router.replace("/(auth)/login");
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const { width } = Dimensions.get("window")
 
@@ -42,15 +52,22 @@ export default function OnboardingScreen() {
     const isLastSlide = currentIndex === slides.length - 1
 
 
-    const handleNext = () => {
-        if(!isLastSlide){
+    const handleNext = async () => {
+
+        try {
+             if(!isLastSlide){
             flatListRef.current?.scrollToIndex({
                 index: currentIndex + 1,
                 animated: true
             });
         } else {
+            await saveOnboarding()
             router.replace("/(auth)/signup")
         }
+        } catch (error) {
+            console.log
+        }
+       
     }
 
     return (

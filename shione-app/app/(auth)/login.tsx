@@ -7,6 +7,7 @@ import PrimaryButton from '@/components/UI/PrimaryButton'
 import InputField from '@/components/UI/InputField'
 import { loginUser } from '@/services/auth.service'
 import { getToken, saveToken } from '@/services/storage/auth.storage'
+import { saveOnboarding, getOnboarding, removeOnboarding } from '@/services/storage/onboarding.storage'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function LoginScreen() {
@@ -43,7 +44,7 @@ export default function LoginScreen() {
     setLoading(true)
 
     const result = await loginUser(email, password)
-
+    
     await saveToken(result.token)
 
     const token = await getToken()
