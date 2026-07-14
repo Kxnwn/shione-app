@@ -7,11 +7,11 @@ export const createJournal = async (req: Request, res: Response) => {
     const userId = req.user.id
 
     try {
-        
+       
         const result = await createJournalService (
             title,
             content,
-            userId
+            userId 
         )
 
         res.status(200).json({
@@ -76,3 +76,4 @@ export const deleteJournal = async(req: Request, res: Response) => {
          res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
     }
 }
+

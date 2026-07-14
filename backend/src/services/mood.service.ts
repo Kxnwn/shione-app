@@ -88,6 +88,29 @@ export const deleteMoodService = async (
 }
 
 
+export const getTodayMood = async(
+    userId: number
+) => {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const endOfDay = new Date()
+    endOfDay.setHours(23, 59, 59, 999)
+
+    
+    const mood = await prisma.mood.findMany({
+        where: {
+            userId,
+            createdAt: {
+                gte: startOfDay,
+                lte: endOfDay
+            }
+        }
+    })
+
+    return mood;
+}
+
 
 
 
