@@ -4,7 +4,6 @@ import { getHomeData } from "../controllers/home.controller.js";
 
 const router = Router()
 
-router.get("/home", authMiddleware, getHomeData)
-router.get("/home", authMiddleware,)
+router.get("/", authMiddleware, getHomeData)
 
 export default router

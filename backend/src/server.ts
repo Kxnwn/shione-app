@@ -3,6 +3,7 @@ import  authRoutes  from "./routes/auth.routes.js"
 import userRoutes from "./routes/user.routes.js"
 import moodRoutes from "./routes/mood.routes.js"
 import journalRoutes from "./routes/journal.routes.js"
+import homeRoutes from "./routes/home.routes.js"
 import cors from "cors"
 const app = express();
 
@@ -10,7 +11,7 @@ const app = express();
 app.use(cors())
 app.use(express.json());
 
-app.use("/api/home")
+app.use("/api/home",homeRoutes)
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes)
 app.use("/api/moods", moodRoutes)
