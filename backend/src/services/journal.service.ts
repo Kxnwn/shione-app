@@ -97,7 +97,7 @@ export const getLatestJournal = async (
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
-    const journal = await prisma.journal.findMany({
+    const journal = await prisma.journal.findFirst({
        where:{
         userId
         },

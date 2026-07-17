@@ -10,8 +10,8 @@ export const createMood = async (req: Request, res: Response) => {
 
         const result = await createMoodService(
             userId,
-            note,
-            mood
+            mood,
+            note
         )
     res.status(201).json({
         message: "Successfully created a mood", result

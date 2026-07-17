@@ -12,7 +12,7 @@ export const loginUser = async (
                 password
             }
         )
-
+        
         return response.data
 
     } catch (error: any) {
@@ -48,6 +48,7 @@ export const registerUser = async (
     )
 
     return response.data;
+    
     } catch (error: any) {
         console.log(
             "STATUS:",

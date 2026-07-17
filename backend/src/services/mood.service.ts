@@ -98,7 +98,7 @@ export const getTodayMood = async(
     endOfDay.setHours(23, 59, 59, 999)
 
     
-    const mood = await prisma.mood.findMany({
+    const mood = await prisma.mood.findFirst({
         where: {
             userId,
             createdAt: {
