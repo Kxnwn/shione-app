@@ -1,5 +1,4 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import GlassCard from "../UI/GlassCard";
 import { BlurView } from "expo-blur";
 
 type MoodCardProps = {
