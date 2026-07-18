@@ -2,10 +2,14 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import "../global.css"
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   return (
     <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+    <BottomSheetModalProvider>
       <Stack initialRouteName="splash">
         <Stack.Screen 
           name="splash" 
@@ -25,6 +29,8 @@ export default function RootLayout() {
         />
       </Stack>
       <StatusBar style="light" />
+      </BottomSheetModalProvider>
+      </GestureHandlerRootView>
     </>
   )
 }

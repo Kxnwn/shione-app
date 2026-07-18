@@ -105,6 +105,9 @@ export const getTodayMood = async(
                 gte: startOfDay,
                 lte: endOfDay
             }
+        },
+        orderBy: {
+            createdAt: "desc"
         }
     })
 

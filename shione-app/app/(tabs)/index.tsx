@@ -6,25 +6,31 @@ import MoodCard from "@/components/HomeTab/MoodCard";
 import JournalPreview from "@/components/HomeTab/JournalPreview"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ScrollView } from "react-native";
+import MoodBottomSheet from "@/components/Mood/MoodButtomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useRef } from "react";
 
 export default function HomeScreen() {
   const [homeData, setHomeData] = useState<any>(null);
+  
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+
+  const loadHomeData = async () => {
+    const data = await getHomeData();
+
+    console.log(JSON.stringify(data, null, 2));
+
+    setHomeData(data);
+};
 
   useEffect(() => {
-    const loadHomeData = async () => {
-      const data = await getHomeData()
-
-      console.log(JSON.stringify(data, null, 2));
-
-      setHomeData(data)
-    }
-
     loadHomeData()
   }, [])
 
 
   return(
-    <SafeAreaView className="flex-1 bg-[#E6C1F6]">
+    <SafeAreaView className="flex-1 bg-[#FBF7FF]">
     <ScrollView
         contentContainerStyle={{
             paddingBottom: 40,
@@ -39,13 +45,15 @@ export default function HomeScreen() {
                 />
 
                 <MoodCard
-                    mood={homeData.mood?.mood} note={homeData.mood?.note}
+                    mood={homeData.mood?.mood} note={homeData.mood?.note} onPress={() => bottomSheetRef.current?.present()}
                 />
 
                 <JournalPreview
                     title={homeData.journal?.title}
                     content={homeData.journal?.content}
                 />
+
+                <MoodBottomSheet ref={bottomSheetRef} onMoodSaved={loadHomeData}/>
             </>
         )}
 

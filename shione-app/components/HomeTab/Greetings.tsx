@@ -24,13 +24,8 @@ export default function Greeting({ name }: GreetingProps) {
     return (
         <View className="px-6 pt-14 mb-5">
             <Text className="text-3xl font-semibold text-[#6E5F9E]">
-                {greeting},
+                {greeting}, <Text className="text-4xl font-bold text-[#8854C0]">{name}</Text>
             </Text>
-
-            <Text className="text-5xl font-bold text-[#8854C0] mt-1">
-                {name}
-            </Text>
-
             <Text className="text-base mt-3">
                 {message}
             </Text>
