@@ -2,10 +2,11 @@ import { View, Text } from 'react-native'
 import { removeToken } from "@/services/storage/auth.storage";
 import { router } from 'expo-router';
 import PrimaryButton from '@/components/UI/PrimaryButton';
+import { removeOnboarding } from '@/services/storage/onboarding.storage';
 const handleLogout = async () => {
   try {
     await removeToken()
-
+    await removeOnboarding()
     router.replace("/(auth)/login")
   } catch (error) {
     

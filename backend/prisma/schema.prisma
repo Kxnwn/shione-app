@@ -39,3 +39,23 @@ model Journal {
     userId   Int
     user User @relation(fields: [userId], references: [id])
 }
+
+model BibleVerse {
+  id        Int @id @default(autoincrement())
+  verse      String
+  reference   String 
+  category    VerseCategory
+}
+
+
+enum VerseCategory {
+  HOPE
+  PEACE
+  JOY
+  ANXIETY
+  FEAR
+  LOVE
+  STRENGTH
+  WISDOM
+  GRATITUDE
+}
