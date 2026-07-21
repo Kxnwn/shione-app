@@ -108,21 +108,7 @@ export default function LoginScreen() {
                 </View>
 
                 <View className="flex-1 px-6 pt-14 pb-10 justify-center">
-                    {/* Back Button */}
-                    <TouchableOpacity
-                        onPress={() => router.back()}
-                        activeOpacity={0.7}
-                        className="mb-8 w-10 h-10 rounded-full bg-white/80 items-center justify-center border border-neutral-100"
-                        style={{
-                            shadowColor: "#8854C0",
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.08,
-                            shadowRadius: 8,
-                            elevation: 2,
-                        }}
-                    >
-                        <Feather name="arrow-left" size={20} color="#8854C0" />
-                    </TouchableOpacity>
+            
 
                     {/* Header */}
                     <MotiView

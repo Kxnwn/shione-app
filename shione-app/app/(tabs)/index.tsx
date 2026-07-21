@@ -333,12 +333,7 @@ export default function HomeScreen() {
                         ],
                     }}
                 >
-                    <SectionHeader
-                        icon="📖"
-                        title="Daily Verse"
-                        subtitle="Scripture for your journey"
-                        delay={200}
-                    />
+                   
                     {homeData && (
                         <BibleVerseCard  verse={homeData.verse}/>
                     )}
