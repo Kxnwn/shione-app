@@ -19,6 +19,7 @@ import Greeting from "@/components/HomeTab/Greetings";
 import MoodCard from "@/components/HomeTab/MoodCard";
 import JournalPreview from "@/components/HomeTab/JournalPreview";
 import MoodBottomSheet from "@/components/Mood/MoodButtomSheet";
+import BibleVerseCard from "@/components/HomeTab/BibleVerseCard"
 
 const { width } = Dimensions.get("window");
 
@@ -39,10 +40,17 @@ type JournalData = {
     createdAt?: string;
 };
 
+type BibleData = {
+    verse: string,
+    reference: string,
+    category: string,
+}
+
 type HomeData = {
     user: User;
     mood?: MoodData | null;
     journal?: JournalData | null;
+    verse?: BibleData | null
 };
 
 // ─── Skeleton Loader ───────────────────────────────────
@@ -179,6 +187,7 @@ export default function HomeScreen() {
         try {
             const data = await getHomeData();
             setHomeData(data);
+            console.log(data)
             // Trigger entry animations after data loads
             setTimeout(animateEntry, 100);
         } catch (error) {
@@ -330,6 +339,9 @@ export default function HomeScreen() {
                         subtitle="Scripture for your journey"
                         delay={200}
                     />
+                    {homeData && (
+                        <BibleVerseCard  verse={homeData.verse}/>
+                    )}
                 </Animated.View>
 
                 {/* Journal Section */}

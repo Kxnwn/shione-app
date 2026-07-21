@@ -9,6 +9,8 @@ export const getHomeData = async () => {
             Authorization: `Bearer ${token}`,
         }
     })
+
+    
     
 
     return response.data.data

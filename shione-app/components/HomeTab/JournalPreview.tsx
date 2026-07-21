@@ -1,41 +1,23 @@
 import React, { useRef, useEffect } from "react";
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Animated,
-    Dimensions,
-} from "react-native";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, TouchableOpacity, Animated } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 type JournalProps = {
     content?: string;
     title?: string;
-    date?: string; // optional: e.g. "Jul 20, 2026"
+    date?: string;
     onPress?: () => void;
 };
 
-const { width } = Dimensions.get("window");
-
-export default function JournalCard({ content, title, date, onPress }: JournalProps) {
+export default function JournalPreview({ content, title, date, onPress }: JournalProps) {
     const hasJournal = !!(title && content);
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const slideAnim = useRef(new Animated.Value(20)).current;
+    const slideAnim = useRef(new Animated.Value(15)).current;
 
     useEffect(() => {
         Animated.parallel([
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 600,
-                useNativeDriver: true,
-            }),
-            Animated.timing(slideAnim, {
-                toValue: 0,
-                duration: 600,
-                useNativeDriver: true,
-            }),
+            Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+            Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
         ]).start();
     }, []);
 
@@ -43,121 +25,78 @@ export default function JournalCard({ content, title, date, onPress }: JournalPr
 
     return (
         <Animated.View
-            style={{
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-            }}
+            style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
             className="mx-5 my-3"
         >
-            <BlurView
-                intensity={60}
-                tint="light"
-                className="rounded-3xl overflow-hidden border border-white/40"
-                style={{
-                    shadowColor: "#8854C0",
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 24,
-                    elevation: 6,
-                }}
-            >
-                <LinearGradient
-                    colors={["rgba(255,255,255,0.9)", "rgba(255,255,255,0.75)"]}
-                    className="p-5"
-                >
-                    {/* Header Row */}
-                    <View className="flex-row items-center justify-between mb-4">
-                        <View className="flex-row items-center gap-2">
-                            <View className="w-8 h-8 rounded-xl bg-[#8854C0]/10 items-center justify-center">
-                                <Feather name="book-open" size={16} color="#8854C0" />
-                            </View>
-                            <View>
-                                <Text className="text-xs font-bold uppercase tracking-widest text-neutral-400">
-                                    Latest Journal
-                                </Text>
-                                {hasJournal && date && (
-                                    <Text className="text-[10px] text-neutral-400 mt-0.5">
-                                        {date}
-                                    </Text>
-                                )}
-                            </View>
-                        </View>
+            {/* Left accent bar + content row */}
+            <View className="flex-row">
+                {/* Purple left border accent */}
+                <View className="w-1 rounded-full bg-[#8854C0] mr-4 opacity-60" />
 
-                        {hasJournal && (
-                            <View className="px-2.5 py-1 rounded-full bg-[#8854C0]/8">
-                                <Text className="text-[10px] font-bold text-[#8854C0]">
-                                    {wordCount} words
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-
-                    {/* Content Area */}
+                <View className="flex-1 py-1">
                     {hasJournal ? (
-                        <View className="mb-4">
-                            <Text
-                                className="text-lg font-bold text-neutral-800 mb-2 leading-tight"
-                                numberOfLines={1}
-                            >
+                        <>
+                            <View className="flex-row items-center justify-between mb-2">
+                                <Text className="text-xs font-bold uppercase tracking-wider text-[#8854C0]">
+                                    Latest Entry
+                                </Text>
+                                <Text className="text-[10px] text-neutral-400">
+                                    {date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                </Text>
+                            </View>
+
+                            <Text className="text-lg font-bold text-neutral-800 mb-1" numberOfLines={1}>
                                 {title}
                             </Text>
-                            <View className="p-3.5 rounded-xl bg-neutral-50/80 border border-neutral-100">
-                                <Text
-                                    className="text-sm text-neutral-600 leading-6"
-                                    numberOfLines={3}
-                                    ellipsizeMode="tail"
-                                >
-                                    {content}
+                            <Text className="text-sm text-neutral-500 leading-5 mb-3" numberOfLines={2}>
+                                {content}
+                            </Text>
+
+                            <View className="flex-row items-center justify-between">
+                                <Text className="text-[11px] text-neutral-400">
+                                    {wordCount} words
                                 </Text>
+                                <TouchableOpacity
+                                    onPress={onPress}
+                                    activeOpacity={0.7}
+                                    className="flex-row items-center gap-1"
+                                >
+                                    <Text className="text-sm font-semibold text-[#8854C0]">Read</Text>
+                                    <Feather name="arrow-right" size={14} color="#8854C0" />
+                                </TouchableOpacity>
                             </View>
-                        </View>
+                        </>
                     ) : (
                         /* Empty State */
-                        <View className="items-center py-6 mb-2">
-                            <View className="w-16 h-16 rounded-2xl bg-[#8854C0]/5 items-center justify-center mb-3 border border-[#8854C0]/10">
-                                <Feather name="edit-3" size={28} color="#8854C0" />
+                        <View className="py-4">
+                            <View className="flex-row items-center gap-2 mb-2">
+                                <Feather name="book" size={14} color="#8854C0" />
+                                <Text className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                                    Journal
+                                </Text>
                             </View>
                             <Text className="text-base font-bold text-neutral-800 mb-1">
                                 No journal yet
                             </Text>
-                            <Text className="text-sm text-neutral-400 text-center leading-5 px-4">
+                            <Text className="text-sm text-neutral-400 mb-3 leading-5">
                                 Write your thoughts and reflect on your day.
                             </Text>
+                            <TouchableOpacity
+                                onPress={onPress}
+                                activeOpacity={0.7}
+                                className="flex-row items-center gap-1 self-start"
+                            >
+                                <View className="w-6 h-6 rounded-full bg-[#8854C0]/10 items-center justify-center">
+                                    <Feather name="plus" size={12} color="#8854C0" />
+                                </View>
+                                <Text className="text-sm font-semibold text-[#8854C0]">
+                                    Start Journaling
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                     )}
-
-                    {/* Divider */}
-                    <View className="h-px bg-neutral-100 mb-4" />
-
-                    {/* Action Button */}
-                    <TouchableOpacity
-                        onPress={onPress}
-                        activeOpacity={0.8}
-                        className="flex-row items-center justify-between"
-                    >
-                        <View className="flex-row items-center gap-2">
-                            <View
-                                className="w-8 h-8 rounded-full items-center justify-center"
-                                style={{
-                                    backgroundColor: hasJournal
-                                        ? "rgba(136,84,192,0.1)"
-                                        : "rgba(136,84,192,0.08)",
-                                }}
-                            >
-                                <Feather
-                                    name={hasJournal ? "book" : "plus"}
-                                    size={14}
-                                    color="#8854C0"
-                                />
-                            </View>
-                            <Text className="text-sm font-bold text-[#8854C0]">
-                                {hasJournal ? "Continue Reading" : "Start Journaling"}
-                            </Text>
-                        </View>
-                        <Feather name="arrow-right" size={18} color="#8854C0" />
-                    </TouchableOpacity>
-                </LinearGradient>
-            </BlurView>
+                </View>
+            </View>
         </Animated.View>
     );
 }
