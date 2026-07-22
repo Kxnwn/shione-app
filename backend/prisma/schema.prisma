@@ -59,3 +59,15 @@ enum VerseCategory {
   WISDOM
   GRATITUDE
 }
+
+
+model Chat {
+  id Int  @id @default(autoincrement())
+  role String
+  message String
+
+  createdAt DateTime @default(now())
+
+  userId Int
+  user User @relation(fields:[userId], reference: [id])
+}
