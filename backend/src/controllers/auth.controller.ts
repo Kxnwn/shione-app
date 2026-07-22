@@ -1,5 +1,5 @@
 import { Request , Response } from "express"
-import { registerUserService, loginUserService } from "../services/auth.service.js"
+import { registerUserService, loginUserService, changeUserPasswordService } from "../services/auth.service.js"
 
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -30,5 +30,24 @@ export const loginUser = async (req: Request, res: Response) => {
         res.status(200).json({ message: "user login successfully.", ...result, })
     } catch (error) {
         res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
+    }
+}
+
+export const changeUserPassword = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user.id
+        const { currentPassword, newPassword } = req.body
+
+        const result = await changeUserPasswordService(
+            userId,
+            currentPassword,
+            newPassword
+        )
+
+        res.status(200).json({
+            message: "Successfully changed your password!", data: result
+        })
+    } catch (error) {
+          res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
     }
 }

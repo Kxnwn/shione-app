@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, Animated } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 type JournalProps = {
     content?: string;
@@ -13,6 +14,10 @@ export default function JournalPreview({ content, title, date, onPress }: Journa
     const hasJournal = !!(title && content);
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(15)).current;
+
+    const onClickJournal = () => {
+        router.replace("/(tabs)/journal")
+    }
 
     useEffect(() => {
         Animated.parallel([
@@ -57,9 +62,10 @@ export default function JournalPreview({ content, title, date, onPress }: Journa
                                     {wordCount} words
                                 </Text>
                                 <TouchableOpacity
-                                    onPress={onPress}
+                                    onPress={onClickJournal}
                                     activeOpacity={0.7}
                                     className="flex-row items-center gap-1"
+                                    
                                 >
                                     <Text className="text-sm font-semibold text-[#8854C0]">Read</Text>
                                     <Feather name="arrow-right" size={14} color="#8854C0" />

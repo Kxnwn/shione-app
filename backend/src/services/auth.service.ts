@@ -89,6 +89,47 @@ export const loginUserService = async (email: string, password: string)  => {
 
 }
 
+export const changeUserPasswordService = async (
+    userId: number,
+    currentPassword: string,
+    newPassword: string
+) => {
+   
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            }
+        })
+
+        if(!user) {
+            throw new Error("User not found")
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user?.password)
+
+        if (!isMatch) {
+            throw new Error("Current password is incorrect")
+        }
+
+        if(currentPassword === newPassword) {
+            throw new Error("Cannot Use the same password again")
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+        const newPass = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                password: hashedPassword
+            }
+        })
+
+        return newPass
+
+}
+
 export const logoutUser = (
     req: Request,
     res: Response
@@ -97,3 +138,4 @@ export const logoutUser = (
         message: "Logout successful."
     });
 };
+
