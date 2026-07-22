@@ -29,3 +29,15 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 
     return response.data.data
 }
+
+export const getStreak = async() => {
+    const token = await getToken()
+
+    const response = await api.get("/users/streak", {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    return response.data.data
+}

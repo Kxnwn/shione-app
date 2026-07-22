@@ -20,6 +20,8 @@ import MoodCard from "@/components/HomeTab/MoodCard";
 import JournalPreview from "@/components/HomeTab/JournalPreview";
 import MoodBottomSheet from "@/components/Mood/MoodButtomSheet";
 import BibleVerseCard from "@/components/HomeTab/BibleVerseCard"
+import { getStreak } from "@/api/profile.api";
+import Streak from "@/components/HomeTab/Streak"
 
 const { width } = Dimensions.get("window");
 
@@ -142,6 +144,7 @@ export default function HomeScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
+    const [streak, setStreak] = useState(0)
 
     // Staggered animation values
     const animValues = useRef(
@@ -182,6 +185,18 @@ export default function HomeScreen() {
         });
     }, [animValues]);
 
+    const loadStreak = async (showRefresh = false) => {
+        if (!showRefresh) setLoading(true);
+
+        try {
+            const data = await getStreak()
+            console.log("STREAK", data)
+            setStreak(data.streak)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const loadHomeData = async (showRefresh = false) => {
         if (!showRefresh) setLoading(true);
         try {
@@ -205,6 +220,7 @@ export default function HomeScreen() {
 
     useEffect(() => {
         loadHomeData();
+        loadStreak();
     }, []);
 
     // ─── Date Header ─────────────────────────────────────
@@ -362,6 +378,8 @@ export default function HomeScreen() {
                         />
                     )}
                 </Animated.View>
+
+                <Streak streak={streak} />
 
                 {/* Quick Actions Footer */}
                 <Animated.View
