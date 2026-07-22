@@ -204,7 +204,7 @@ export default function HomeScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8854C0" colors={["#8854C0"]} />
                 }
             >
-                {/* ═══ TOP BAR ═══ */}
+                {/*  TAAS NA BAR  */}
                 <Animated.View
                     style={{
                         opacity: animValues[0].opacity,
@@ -220,7 +220,7 @@ export default function HomeScreen() {
                     <TouchableOpacity
                         onPress={() => {
                             router.replace('/(tabs)/profile')
-                        }} // TODO: Navigate to profile/settings
+                        }} // TODO: Navigate to profile/settings -TAPOS NA
                         className="w-9 h-9 rounded-full bg-white/60 items-center justify-center border border-white/40"
                     >
                         <Feather name="settings" size={16} color="#8854C0" />
