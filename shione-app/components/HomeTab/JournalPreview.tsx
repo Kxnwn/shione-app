@@ -88,7 +88,9 @@ export default function JournalPreview({ content, title, date, onPress }: Journa
                                 Write your thoughts and reflect on your day.
                             </Text>
                             <TouchableOpacity
-                                onPress={onPress}
+                                onPress={() => {
+                                    router.replace('/(tabs)/journal')
+                                }}
                                 activeOpacity={0.7}
                                 className="flex-row items-center gap-1 self-start"
                             >

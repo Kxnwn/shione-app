@@ -3,6 +3,7 @@ import {
     BottomSheetModal,
     BottomSheetView,
     BottomSheetBackdrop,
+    BottomSheetTextInput
 } from "@gorhom/bottom-sheet";
 import {
     Text,
@@ -120,6 +121,8 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                 enablePanDownToClose={!loading}
                 enableDismissOnClose
                 backdropComponent={renderBackdrop}
+                keyboardBehavior="interactive"
+                keyboardBlurBehavior="restore"
                 handleIndicatorStyle={{
                     backgroundColor: "#D4D4D8",
                     width: 40,
@@ -240,7 +243,7 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                                         backgroundColor: focusedInput ? "rgba(136,84,192,0.03)" : "#FAFAFA",
                                     }}
                                 >
-                                    <TextInput
+                                    <BottomSheetTextInput
                                         value={note}
                                         onChangeText={setNote}
                                         placeholder="What's on your mind? (optional)"
