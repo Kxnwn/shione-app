@@ -5,6 +5,7 @@ import moodRoutes from "./routes/mood.routes.js"
 import journalRoutes from "./routes/journal.routes.js"
 import homeRoutes from "./routes/home.routes.js"
 import cors from "cors"
+import chatRoutes from './routes/chat.routes.js'
 const app = express();
 
 
@@ -16,6 +17,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes)
 app.use("/api/moods", moodRoutes)
 app.use("/api/journals", journalRoutes)
+app.use("/api/chat", chatRoutes)
 
 
 app.get("/api/test", (req, res) => {
