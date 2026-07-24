@@ -87,7 +87,7 @@ export default function ChatScreen({}) {
         ...prev,
         {
           role: "ASSISTANT",
-          message: "I'm sorry... I couldn't respond right now. Please try again in a moment. 🌸",
+          message: "I'm sorry... I couldn't respond right now. I'm a little overwhelmed right now and need a brief moment before I can reply. 🌸",
           isNew: true,
         },
       ]);

@@ -12,6 +12,9 @@ import { useRef, useEffect } from "react";
 
 const { width } = Dimensions.get("window");
 
+// route names that exist as screens but should NOT appear as tabs
+const HIDDEN_TABS = ["profile"];
+
 function CustomTabBar({ state, descriptors, navigation }: any) {
     const insets = useSafeAreaInsets();
     const animValues = useRef(
@@ -29,6 +32,13 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         });
     }, [state.index]);
 
+    // filter out hidden routes directly by name — doesn't depend on
+    // expo-router transforming `href: null` into descriptor options,
+    // which isn't guaranteed when a custom tabBar is supplied
+    const visibleRoutes = state.routes.filter(
+        (route: any) => !HIDDEN_TABS.includes(route.name)
+    );
+
     return (
         <View
             style={[
@@ -36,10 +46,12 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 { paddingBottom: insets.bottom > 0 ? insets.bottom : 12 },
             ]}
         >
-            {/* Solid frosted background — NO white haze */}
             <View style={styles.tabBar}>
                 <View style={styles.innerContainer}>
-                    {state.routes.map((route: any, index: number) => {
+                    {visibleRoutes.map((route: any) => {
+                        // real index in the full route list — needed so
+                        // isFocused/animValues stay correctly aligned
+                        const index = state.routes.indexOf(route);
                         const { options } = descriptors[route.key];
                         const label = options.title ?? route.name;
                         const isFocused = state.index === index;
@@ -106,7 +118,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                                     {label}
                                 </Animated.Text>
 
-                                {/* Active dot */}
                                 {isFocused && (
                                     <View style={styles.activeDot} />
                                 )}
@@ -125,13 +136,12 @@ export default function TabLayout() {
             tabBar={(props) => <CustomTabBar {...props} />}
             screenOptions={{
                 headerShown: false,
-                
             }}
         >
             <Tabs.Screen name="index" options={{ title: "Home" }} />
             <Tabs.Screen name="chat" options={{ title: "Chat" }} />
             <Tabs.Screen name="journal" options={{ title: "Journal" }} />
-            <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+            <Tabs.Screen name="profile" options={{ title: "Profile", href: null }} />
         </Tabs>
     );
 }
@@ -143,17 +153,14 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         alignItems: "center",
-        
     },
     tabBar: {
         marginHorizontal: 20,
         marginBottom: 16,
         borderRadius: 28,
-        // ✅ SOLID semi-transparent purple-tinted background
         backgroundColor: "rgba(255, 255, 255, 0.92)",
         borderWidth: 1,
         borderColor: "rgba(136, 84, 192, 0.12)",
-        // Stronger shadow for depth
         shadowColor: "#8854C0",
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.15,

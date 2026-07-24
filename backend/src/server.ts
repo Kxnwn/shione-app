@@ -6,6 +6,7 @@ import journalRoutes from "./routes/journal.routes.js"
 import homeRoutes from "./routes/home.routes.js"
 import cors from "cors"
 import chatRoutes from './routes/chat.routes.js'
+import analyticsRoutes from './routes/analytics.routes.js'
 const app = express();
 
 
@@ -18,6 +19,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/moods", moodRoutes)
 app.use("/api/journals", journalRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/analytics", analyticsRoutes)
 
 
 app.get("/api/test", (req, res) => {
