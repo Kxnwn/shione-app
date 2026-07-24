@@ -136,6 +136,14 @@ export default function AnalyticsScreen() {
         };
     });
 
+    // ─── Find the top mood (most entries) ─────────────────────
+    const topMood =
+        pieData.length > 0
+            ? pieData.reduce((max, item) =>
+                  item.value > max.value ? item : max
+              )
+            : null;
+
     const handlePiePress = useCallback((item: any) => {
         setSelectedMood((prev) => (prev === item.label ? null : item.label));
     }, []);
@@ -183,7 +191,7 @@ export default function AnalyticsScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-[#FBF7FF]">
-            {/* Soft ambient background — matches HomeScreen */}
+            {/* Soft ambient background */}
             <View className="absolute top-0 left-0 right-0 h-[500] pointer-events-none">
                 <LinearGradient
                     colors={["rgba(136,84,192,0.08)", "transparent"]}
@@ -244,11 +252,20 @@ export default function AnalyticsScreen() {
                                     const selected = pieData.find(
                                         (d) => d.focused
                                     );
+                                    // Show selected slice, otherwise fallback to top mood
                                     const displayItem =
-                                        selected || pieData[0];
+                                        selected || topMood || pieData[0];
+                                    const isTop = !selected && displayItem === topMood;
 
                                     return (
                                         <View className="items-center justify-center">
+                                            {isTop && (
+                                                <View className="px-2.5 py-0.5 rounded-full bg-[#8854C0]/10 mb-1">
+                                                    <Text className="text-[#8854C0] text-[10px] font-bold uppercase tracking-widest">
+                                                        Top Mood
+                                                    </Text>
+                                                </View>
+                                            )}
                                             <Text className="text-4xl mb-1">
                                                 {displayItem?.emoji}
                                             </Text>
@@ -265,7 +282,7 @@ export default function AnalyticsScreen() {
                         </View>
 
                         {/* Inline legend */}
-                        <View className="flex-row flex-wrap justify-center mt-6 gap-x-4 gap-y-2">
+                        <View className="flex-row flex-wrap justify-center mt-6 gap-x-3 gap-y-2">
                             {pieData.map((item) => (
                                 <View
                                     key={item.label}
