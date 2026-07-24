@@ -1,10 +1,12 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity, Platform, Keyboard, KeyboardEvent } from 'react-native'
+import { View, Text, FlatList, TextInput, TouchableOpacity, Platform, Keyboard, KeyboardEvent, NativeSyntheticEvent, NativeScrollEvent } from 'react-native'
 import { useState, useEffect, useRef } from 'react'
 import { sendChat, chatHistory } from '@/api/chat.api';
 import ChatBubble from '@/components/Chat/ChatBubble';
 import { ChatMessage } from '@/types/chat';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+
+const BOTTOM_THRESHOLD = 80;
 
 export default function ChatScreen({}) {
   const [message, setMessage] = useState("");
@@ -16,6 +18,9 @@ export default function ChatScreen({}) {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
   const isFirstLoad = useRef(true);
+  // tracks whether the user is currently scrolled near the bottom —
+  // auto-scroll only happens while this is true, so backreading is never interrupted
+  const isAtBottomRef = useRef(true);
 
   const loadHistory = async () => {
     try {
@@ -35,11 +40,12 @@ export default function ChatScreen({}) {
     const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
 
     const showSub = Keyboard.addListener(showEvent, (e: KeyboardEvent) => {
-      // subtract the bottom safe-area inset since SafeAreaView already
-      // reserves that space — otherwise we'd double up on it
       const height = Math.max(e.endCoordinates.height - insets.bottom, 0);
       setKeyboardHeight(height);
-      flatListRef.current?.scrollToEnd({ animated: true });
+      // only follow the keyboard down to the latest message if already at the bottom
+      if (isAtBottomRef.current) {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }
     });
 
     const hideSub = Keyboard.addListener(hideEvent, () => {
@@ -57,6 +63,9 @@ export default function ChatScreen({}) {
       if (!message.trim()) return;
 
       const userMessage = message;
+
+      // sending a message always snaps the view back to the bottom
+      isAtBottomRef.current = true;
 
       setMessages((prev) => [
         ...prev,
@@ -87,9 +96,26 @@ export default function ChatScreen({}) {
     }
   };
 
+  // fires on every content-size change, INCLUDING each character the typewriter reveals —
+  // so we gate the scroll behind isAtBottomRef instead of scrolling unconditionally
   const handleContentSizeChange = () => {
-    flatListRef.current?.scrollToEnd({ animated: !isFirstLoad.current });
-    isFirstLoad.current = false;
+    if (isFirstLoad.current) {
+      flatListRef.current?.scrollToEnd({ animated: false });
+      isFirstLoad.current = false;
+      return;
+    }
+
+    if (isAtBottomRef.current) {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }
+  };
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+    const distanceFromBottom =
+      contentSize.height - (contentOffset.y + layoutMeasurement.height);
+
+    isAtBottomRef.current = distanceFromBottom < BOTTOM_THRESHOLD;
   };
 
   const isKeyboardVisible = keyboardHeight > 0;
@@ -110,6 +136,8 @@ export default function ChatScreen({}) {
         className="flex-1 px-4"
         contentContainerStyle={{ paddingBottom: 12 }}
         onContentSizeChange={handleContentSizeChange}
+        onScroll={handleScroll}
+        scrollEventThrottle={100}
         keyboardShouldPersistTaps="handled"
       />
 
@@ -127,6 +155,7 @@ export default function ChatScreen({}) {
       >
         <TextInput
           value={message}
+          multiline
           onChangeText={setMessage}
           placeholder="Talk to Shione..."
           placeholderTextColor="#B79CE0"
