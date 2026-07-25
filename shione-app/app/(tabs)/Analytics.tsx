@@ -204,7 +204,7 @@ export default function AnalyticsScreen() {
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 40 }}
+                contentContainerStyle={{ paddingBottom: 115 }}
             >
                 {/* Header */}
                 <AnimatedCard delay={0}>

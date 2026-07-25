@@ -18,8 +18,6 @@ export default function ChatScreen({}) {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
   const isFirstLoad = useRef(true);
-  // tracks whether the user is currently scrolled near the bottom —
-  // auto-scroll only happens while this is true, so backreading is never interrupted
   const isAtBottomRef = useRef(true);
 
   const loadHistory = async () => {
@@ -42,7 +40,6 @@ export default function ChatScreen({}) {
     const showSub = Keyboard.addListener(showEvent, (e: KeyboardEvent) => {
       const height = Math.max(e.endCoordinates.height - insets.bottom, 0);
       setKeyboardHeight(height);
-      // only follow the keyboard down to the latest message if already at the bottom
       if (isAtBottomRef.current) {
         flatListRef.current?.scrollToEnd({ animated: true });
       }
@@ -64,7 +61,6 @@ export default function ChatScreen({}) {
 
       const userMessage = message;
 
-      // sending a message always snaps the view back to the bottom
       isAtBottomRef.current = true;
 
       setMessages((prev) => [
@@ -96,8 +92,6 @@ export default function ChatScreen({}) {
     }
   };
 
-  // fires on every content-size change, INCLUDING each character the typewriter reveals —
-  // so we gate the scroll behind isAtBottomRef instead of scrolling unconditionally
   const handleContentSizeChange = () => {
     if (isFirstLoad.current) {
       flatListRef.current?.scrollToEnd({ animated: false });
@@ -139,13 +133,17 @@ export default function ChatScreen({}) {
         onScroll={handleScroll}
         scrollEventThrottle={100}
         keyboardShouldPersistTaps="handled"
+        // the thinking indicator now lives INSIDE the scrollable list,
+        // as the last item — so it scrolls with everything else instead
+        // of being pinned above the input regardless of scroll position
+        ListFooterComponent={
+          isThinking ? (
+            <ChatBubble
+              message={{ role: "ASSISTANT", message: "", isThinking: true }}
+            />
+          ) : null
+        }
       />
-
-      {isThinking && (
-        <ChatBubble
-          message={{ role: "ASSISTANT", message: "", isThinking: true }}
-        />
-      )}
 
       <View
         className="flex-row items-center px-4 py-3 bg-[#FBF8FF] border-t border-purple-100"
