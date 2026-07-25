@@ -4,6 +4,15 @@ import { getTodayMood } from "./mood.service.js";
 export const buildUserContext = async (userId: number) => {
     const mood = await getTodayMood(userId);
 
+    const getUserName = await prisma.user.findUnique({
+        where: {
+            id: userId
+        },
+        select: {
+            name: true
+        }
+    })
+
     const previousMessages = await prisma.chat.findMany({
         where: {
             userId,
@@ -43,6 +52,8 @@ export const buildUserContext = async (userId: number) => {
                    
 
         return `
+            User's Name:
+            ${getUserName?.name ?? "Ask the User for their name or ask them what they would like to be called."}
             Today's Mood:
             ${mood?.mood ?? "Unknown"}
 

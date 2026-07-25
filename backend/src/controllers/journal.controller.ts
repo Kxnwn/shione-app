@@ -63,8 +63,8 @@ export const deleteJournal = async(req: Request, res: Response) => {
     const journalId = Number(req.params.id)
     const userId = req.user.id
 
-    try {
-        const results = await deleteJournalService (
+     try {
+       const results = await deleteJournalService (
             journalId,
             userId
         )

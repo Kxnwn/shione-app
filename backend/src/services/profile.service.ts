@@ -9,11 +9,31 @@ export const getProfileService = async (userId: number) => {
             select: {
                 id: true,
                 email: true,
-                name: true
+                name: true,
+                createdAt: true,
             }
         })
 
-     return getProfile
+        const getMoodCount = await prisma.mood.count({
+            where: {
+                userId
+            }
+        })
+
+        const getJournalCount = await prisma.journal.count({
+            where: {
+                userId
+            }
+        })
+
+        const getChatCount = await prisma.chat.count({
+            where: {
+                userId
+            }
+        })
+           
+
+     return { getProfile, getMoodCount, getJournalCount, getChatCount };
 }
 
 export const getStreakService = async (userId: number) => {
@@ -67,3 +87,45 @@ export const getStreakService = async (userId: number) => {
         streak
     };
 };
+
+export const editProfileService = async (userId: number, name: string, email?: string) => {
+    if (!name.trim()) {
+        throw new Error("Name is required");
+    }
+
+    // Normalize: treat empty string as "not provided"
+    const trimmedEmail = email?.trim() || undefined;
+
+    if (trimmedEmail) {
+        const currentUser = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!currentUser) {
+            throw new Error("User not found");
+        }
+
+        if (currentUser.email === trimmedEmail) {
+            throw new Error("Email cannot be the same as the previous one");
+        }
+
+        const existingUser = await prisma.user.findUnique({
+            where: { email: trimmedEmail }
+        });
+
+        if (existingUser && existingUser.id !== userId) {
+            throw new Error("Email is already in use");
+        }
+    }
+
+    const updatedProfile = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            name,
+            ...(trimmedEmail ? { email: trimmedEmail } : {})
+        }
+    });
+
+    return updatedProfile;
+}
+   

@@ -14,6 +14,15 @@ export const registerUserService = async (
     email: string,
     password: string,
 ) => {
+
+    if (!name.trim()) {
+        throw new Error("Name cannot be empty");
+    }
+
+    if (!email.trim()) {
+        throw new Error("Email cannot be empty");
+    }
+
     const existingUser = await prisma.user.findUnique({
         where: {
             email

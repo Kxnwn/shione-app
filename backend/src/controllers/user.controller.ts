@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getProfileService } from "../services/profile.service.js";
-import { getStreakService } from "../services/profile.service.js";
+import { getProfileService, getStreakService, editProfileService } from "../services/profile.service.js";
+
 
 export const getProfile = async (req: Request, res: Response) => {
     const userId = req.user.id
@@ -43,3 +43,36 @@ export const getStreak = async (req: Request, res: Response) => {
     });
     }
 }
+
+export const editProfile = async (req: Request, res: Response) => {
+    const userId = req.user.id
+    const { name, email } = req.body
+
+    try {
+
+        const result = await editProfileService(
+            userId,
+            name,
+            email
+        )
+
+        if (!name.trim()) {
+        return res.status(400).json({
+        message: "Name is required"
+    });
+    }
+        res.status(200).json({
+            message: "Profile updated successfully",
+            data: result
+        })
+    } catch (error) {
+        res.status(400).json({
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Something went wrong"
+        });
+    }
+}
+
+

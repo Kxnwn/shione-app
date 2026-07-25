@@ -41,3 +41,20 @@ export const getStreak = async() => {
 
     return response.data.data
 }
+
+export const updateProfile = async (name: string, email?: string) => {
+    const token = await getToken()
+
+    const response = await api.put("/auth/update-profile", {
+        name,
+        email
+    },
+    {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+)
+
+    return response.data.data
+}
