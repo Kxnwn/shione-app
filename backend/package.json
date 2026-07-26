@@ -3,13 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "test": "vitest run"
-  },
+  "dev": "tsx watch src/server.ts",
+  "start": "tsx src/server.ts",
+  "test": "vitest run"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
