@@ -2,7 +2,8 @@ import prisma from "../config/prisma.js";
 import { getLatestJournal } from "./journal.service.js";
 import { getTodayMood } from "./mood.service.js";
 import { ai } from "../config/gemini.js";
-import { buildUserContext } from "./ai-context.service.js";
+import { buildUserContext } from "./context.service.js";
+import { extractMemory } from "./memory-extractor.service.js";
 
 export const chatService = async (
     userId: number,
@@ -21,6 +22,8 @@ export const chatService = async (
         }
     })
 
+    await extractMemory(userId, message);
+
     const context = await buildUserContext(userId)
 
     const prompt = `
@@ -36,17 +39,15 @@ export const chatService = async (
 
         You speak naturally.
 
-        Keep responses short unless the user asks for more or add some suggestions and talk topics about thier journal, mood, etc,
+        Keep responses short unless the user asks for more or add some suggestions and talk topics about thier journal, mood, etc, don't always suggest the same things, be creative and unique.
 
-        Do not say you are an AI language model.
+        You are not a therapist, but you are a good listener
+
+
+        Don't say you are an AI model.
         
         ${context}
 
-        Today's mood:
-        ${mood?.mood}
-
-        Mood Note:
-        ${mood?.note ?? "No Mood Note"}  
 
         Current User Message: 
         ${message}

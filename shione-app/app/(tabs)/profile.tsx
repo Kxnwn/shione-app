@@ -260,24 +260,25 @@ export default function ProfileScreen() {
     };
 
     const validateEditProfile = () => {
-        const newErrors: Record<string, string> = {};
-        if (!editName.trim()) newErrors.name = "Name is required";
+    const newErrors: Record<string, string> = {};
 
-        const trimmedEmail = editEmail.trim();
-        if (trimmedEmail) {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-                newErrors.email = "Enter a valid email address";
-            } else if (
-                profileData?.getProfile?.email &&
-                trimmedEmail.toLowerCase() === profileData.getProfile.email.toLowerCase()
-            ) {
-                newErrors.email = "This is already your current email";
-            }
-        }
+    if (!editName.trim()) {
+        newErrors.name = "Name is required";
+    }
 
-        setEditErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    const trimmedEmail = editEmail.trim();
+
+    if (
+        trimmedEmail &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)
+    ) {
+        newErrors.email = "Enter a valid email address";
+    }
+
+    setEditErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+};
 
     const handleUpdateProfile = async () => {
         if (!validateEditProfile()) return;
@@ -286,8 +287,6 @@ export default function ProfileScreen() {
 
         try {
             const trimmedEmail = editEmail.trim();
-            // email is optional — if left blank, keep whatever's already on
-            // file rather than sending an empty string that could wipe it out
             const emailToSend = trimmedEmail || profileData?.getProfile?.email || "";
 
             await updateProfile(editName.trim(), emailToSend);
@@ -444,14 +443,15 @@ export default function ProfileScreen() {
                                 onPress={openEditProfile}
                                 delay={100}
                             />
-                            <MenuItem
+                            {/* <MenuItem
                                 icon={<Feather name="bell" size={18} color="#8854C0" />}
                                 label="Notifications"
                                 delay={300}
-                            />
+                            /> */}
                             <MenuItem
                                 icon={<Feather name="shield" size={18} color="#8854C0" />}
                                 label="Privacy Policy"
+                                onPress={() => router.push("/privacy-policy")}
                                 delay={400}
                             />
                         </LinearGradient>

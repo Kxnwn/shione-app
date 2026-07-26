@@ -93,8 +93,8 @@ export const editProfileService = async (userId: number, name: string, email?: s
         throw new Error("Name is required");
     }
 
-    // Normalize: treat empty string as "not provided"
-    const trimmedEmail = email?.trim() || undefined;
+   
+    const trimmedEmail = email?.trim() || null;
 
     if (trimmedEmail) {
         const currentUser = await prisma.user.findUnique({
@@ -105,13 +105,12 @@ export const editProfileService = async (userId: number, name: string, email?: s
             throw new Error("User not found");
         }
 
-        if (currentUser.email === trimmedEmail) {
-            throw new Error("Email cannot be the same as the previous one");
-        }
+       
 
         const existingUser = await prisma.user.findUnique({
             where: { email: trimmedEmail }
         });
+
 
         if (existingUser && existingUser.id !== userId) {
             throw new Error("Email is already in use");

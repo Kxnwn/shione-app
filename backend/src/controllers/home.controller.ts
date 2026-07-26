@@ -1,6 +1,6 @@
 
 import { Request, Response } from "express"
-import { getHomeDataService } from "../services/home.services.js"
+import { getHomeDataService } from "../services/home.service.js"
 
 export const getHomeData = async (req: Request, res: Response) => {
    

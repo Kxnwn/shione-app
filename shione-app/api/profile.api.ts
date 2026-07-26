@@ -43,18 +43,24 @@ export const getStreak = async() => {
 }
 
 export const updateProfile = async (name: string, email?: string) => {
-    const token = await getToken()
+    const token = await getToken();
 
-    const response = await api.put("/auth/update-profile", {
-        name,
-        email
-    },
-    {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const body: { name: string; email?: string } = { name };
+
+
+    if (email && email.trim()) {
+        body.email = email.trim();
     }
-)
 
-    return response.data.data
-}
+    const response = await api.put(
+        "/auth/update-profile",
+        body,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return response.data.data;
+};

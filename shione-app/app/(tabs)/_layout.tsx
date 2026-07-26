@@ -32,11 +32,10 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         });
     }, [state.index]);
 
-    // filter out hidden routes directly by name — doesn't depend on
-    // expo-router transforming `href: null` into descriptor options,
-    // which isn't guaranteed when a custom tabBar is supplied
+    // filter out hidden routes by name (case-insensitive, matching the
+    // icon-lookup logic below)
     const visibleRoutes = state.routes.filter(
-        (route: any) => !HIDDEN_TABS.includes(route.name)
+        (route: any) => !HIDDEN_TABS.includes(route.name.toLowerCase())
     );
 
     return (
@@ -67,14 +66,16 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                             }
                         };
 
+                        // lowercased + startsWith — tolerant of file naming
+                        // being "Analytics.tsx" vs "analytics.tsx", or nested
+                        // like "analytics/index"
                         const iconName = (() => {
-                            switch (route.name) {
-                                case "index": return isFocused ? "home" : "home-outline";
-                                case "chat": return isFocused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline";
-                                case "journal": return isFocused ? "book" : "book-outline";
-                                case "profile": return isFocused ? "person" : "person-outline";
-                                default: return "ellipse-outline";
-                            }
+                            const name = route.name.toLowerCase();
+                            if (name === "index") return isFocused ? "home" : "home-outline";
+                            if (name.startsWith("chat")) return isFocused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline";
+                            if (name.startsWith("journal")) return isFocused ? "book" : "book-outline";
+                            if (name.startsWith("analytics")) return isFocused ? "pie-chart" : "pie-chart-outline";
+                            return "ellipse-outline";
                         })();
 
                         const scale = animValues[index].interpolate({
@@ -141,6 +142,7 @@ export default function TabLayout() {
             <Tabs.Screen name="index" options={{ title: "Home" }} />
             <Tabs.Screen name="chat" options={{ title: "Chat" }} />
             <Tabs.Screen name="journal" options={{ title: "Journal" }} />
+            <Tabs.Screen name="Analytics" options={{ title: "Analytics" }} />
             <Tabs.Screen name="profile" options={{ title: "Profile", href: null }} />
         </Tabs>
     );
