@@ -4,32 +4,45 @@ import { registerUserService, loginUserService, changeUserPasswordService } from
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
-        const { name, email, password } =  req.body
+        const { name, email, password } = req.body;
 
-          if (!name.trim()) {
+        if (!name || !name.trim()) {
             return res.status(400).json({
-            message: "Name is required"
+                message: "Name is required"
             });
         }
 
-         if (!email.trim()) {
+        if (!email || !email.trim()) {
             return res.status(400).json({
-            message: "Email is required during registration"
+                message: "Email is required during registration"
             });
         }
 
-        const user = await registerUserService (
+        if (!password || !password.trim()) {
+            return res.status(400).json({
+                message: "Password is required"
+            });
+        }
+
+        const user = await registerUserService(
             name,
             email,
             password
-        )
+        );
 
-        res.status(201).json({message: "user registered successfully.", user})
+        res.status(201).json({
+            message: "User registered successfully.",
+            user
+        });
+
     } catch (error) {
-        res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
+        res.status(400).json({
+            message: error instanceof Error
+                ? error.message
+                : "Something went wrong"
+        });
     }
-}
-
+};
 export const loginUser = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body
