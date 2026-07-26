@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "shione-app",
+    "name": "Shione",
     "slug": "shione-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kxnwn.shione"
     },
     "web": {
       "output": "static",
@@ -43,6 +44,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a221dd43-c6a3-4f48-9917-ebf8a73cfb7e"
+      }
     }
   }
 }

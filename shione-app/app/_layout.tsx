@@ -24,10 +24,6 @@ export default function RootLayout() {
     <BottomSheetModalProvider>
       <Stack initialRouteName="splash">
         <Stack.Screen 
-          name="privacy-policy" 
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
           name="splash" 
           options={{ headerShown: false }} 
         />
@@ -43,7 +39,12 @@ export default function RootLayout() {
           name="(tabs)" 
           options={{ headerShown: false }} 
         />
+        <Stack.Screen 
+          name="privacy-policy" 
+          options={{ headerShown: false }} 
+        />
       </Stack>
+      
       <StatusBar style="light" />
       </BottomSheetModalProvider>
       </GestureHandlerRootView>
