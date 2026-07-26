@@ -16,7 +16,7 @@ export const registerUserService = async (
 ) => {
 
     if (!name.trim()) {
-        throw new Error("Name cannot be empty");
+        throw new Error("Username cannot be empty");
     }
 
     if (!email.trim()) {
