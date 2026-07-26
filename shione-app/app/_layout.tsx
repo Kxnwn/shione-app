@@ -18,13 +18,15 @@ export default function RootLayout() {
 
 //     setupNotifications();
 // }, []);
+
+
   return (
     <>
     <GestureHandlerRootView style={{ flex: 1 }}>
     <BottomSheetModalProvider>
-      <Stack initialRouteName="splash">
+      <Stack initialRouteName="index">
         <Stack.Screen 
-          name="splash" 
+          name="index" 
           options={{ headerShown: false }} 
         />
         <Stack.Screen 

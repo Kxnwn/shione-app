@@ -2,15 +2,19 @@ import { View, Text } from 'react-native';
 import { MotiView } from 'moti';
 import { useEffect } from 'react';
 import { router } from 'expo-router';
-import { getToken } from '@/services/storage/auth.storage';
+import { getToken, removeToken } from '@/services/storage/auth.storage';
 import { getOnboarding } from '@/services/storage/onboarding.storage';
+import { getProfile } from '@/api/profile.api';
 
 const checkLogin = async () => {
     try {
         const token = await getToken();
-        console.log("TOKEN", token);
+        console.log("TOKEN:", token);
+        console.log("TOKEN TYPE:", typeof token);
 
         if (token) {
+            await getProfile();
+            
             router.replace("/(tabs)");
             return;
         }
@@ -24,6 +28,7 @@ const checkLogin = async () => {
 
         router.replace("/onboarding");
     } catch (error) {
+        await removeToken();
         console.log(error);
         router.replace("/onboarding");
     }
@@ -37,6 +42,7 @@ export default function SplashScreen() {
 
         return () => clearTimeout(timer);
     }, []);
+
 
     return (
         <View className="flex-1 bg-[#FBF7FF] items-center justify-center relative overflow-hidden">
