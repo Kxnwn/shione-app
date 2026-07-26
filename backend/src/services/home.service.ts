@@ -23,7 +23,7 @@ export const getHomeDataService = async (
     Happy: "GRATITUDE",
     Calm: "PEACE",
     Sad: "HOPE",
-    Anxious: "PEACE",
+    Anxiety: "PEACE",
     Angry: "LOVE",
     Excited: "JOY",
 } as const;
