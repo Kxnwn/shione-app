@@ -16,7 +16,7 @@ import { router } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import { loginUser } from "@/services/auth.service";
+import { loginUser } from "@/services/authServices/auth.service";
 import { getToken, saveToken } from "@/services/storage/auth.storage";
 
 const { width } = Dimensions.get("window");

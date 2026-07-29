@@ -20,6 +20,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { Feather } from "@expo/vector-icons";
 import { saveMood } from "@/api/mood.api";
+import { MoodService } from "@/services/mood.service";
+import { NewMood } from "@/types/mood";
 
 type MoodBottomSheetProps = {
     onMoodSaved: () => void;
@@ -64,6 +66,9 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
             }).start();
         }, [scaleAnims]);
 
+        const moodService = new MoodService();
+
+
         const handleSelectMood = (mood: string, index: number) => {
             // Animate previously selected back to normal if changing
             if (selectedMood) {
@@ -75,6 +80,9 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
             animateMood(index, true);
         };
 
+
+
+
         const handleSaveMood = async () => {
             if (!selectedMood) return;
             
@@ -82,7 +90,12 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                 setLoading(true);
                 Keyboard.dismiss();
                 
-                await saveMood(selectedMood, note);
+              
+                await moodService.saveMood(selectedMood, note);
+                
+                const todayMood = await moodService.getTodayMood();
+
+                console.log("Today's Mood:", todayMood);
                 
                 // Reset state
                 setSelectedMood(null);
@@ -99,6 +112,7 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                 setLoading(false);
             }
         };
+        
 
         const renderBackdrop = useCallback(
             (props: any) => (

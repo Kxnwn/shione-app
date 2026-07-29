@@ -14,7 +14,7 @@ import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import { registerUser } from "@/services/auth.service";
+import { registerUser } from "@/services/authServices/auth.service";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

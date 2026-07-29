@@ -21,7 +21,10 @@ import JournalPreview from "@/components/HomeTab/JournalPreview";
 import BibleVerseCard from "@/components/HomeTab/BibleVerseCard";
 import Streak from "@/components/HomeTab/Streak";
 import MoodBottomSheet from "@/components/Mood/MoodButtomSheet";
+import { MoodService } from "@/services/mood.service";
 import { router } from "expo-router";
+import { Mood } from "@/types/mood";
+import { MoodAnalytics } from "@/types/analytics";
 
 const { width } = Dimensions.get("window");
 
@@ -117,10 +120,13 @@ const StatPill = ({
 // ─── Main Screen ───────────────────────────────────────
 export default function HomeScreen() {
     const [homeData, setHomeData] = useState<HomeData | null>(null);
+    const [todayMood, setTodayMood] = useState<Mood | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [streak, setStreak] = useState(0);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
+    const moodService = new MoodService();
+
 
     const animValues = useRef(
         [...Array(6)].map(() => ({
@@ -147,9 +153,10 @@ export default function HomeScreen() {
     const loadData = async (isRefresh = false) => {
         if (!isRefresh) setLoading(true);
         try {
-            const [home, streakData] = await Promise.all([getHomeData(), getStreak()]);
+            const [home, streakData, mood] = await Promise.all([getHomeData(), getStreak(), moodService.getTodayMood()]);
             setHomeData(home);
             setStreak(streakData?.streak ?? 0);
+            setTodayMood(mood);
             setTimeout(animateEntry, 50);
         } catch (error) {
             console.error("Failed to load:", error);
@@ -274,8 +281,8 @@ export default function HomeScreen() {
                     <SectionHeader icon="💜" title="Your Mood" delay={150} />
                     {homeData && (
                         <MoodCard
-                            mood={homeData.mood?.mood}
-                            note={homeData.mood?.note}
+                            mood={todayMood?.mood}
+                            note={todayMood?.note}
                             onPress={() => bottomSheetRef.current?.present()}
                         />
                     )}

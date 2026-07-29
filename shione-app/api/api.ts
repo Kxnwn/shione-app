@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-    baseURL: "https://shione-app.onrender.com/api", 
+    baseURL: "https://proven-zit-basin.ngrok-free.dev/api", 
     headers: {
         "Content-Type": "application/json",
     },

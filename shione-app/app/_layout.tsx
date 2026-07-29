@@ -6,6 +6,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { initializeNotifications, scheduleDailyMoodReminder } from '@/services/notification.service';
 import { useEffect } from 'react';
+import { initializeDatabase } from '@/database/database';
 
 export default function RootLayout() {
 
@@ -18,6 +19,11 @@ export default function RootLayout() {
 
 //     setupNotifications();
 // }, []);
+
+useEffect(() => {
+    // Initialize the SQLite database
+    initializeDatabase();
+}, []);
 
 
   return (
