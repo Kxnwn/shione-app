@@ -22,8 +22,12 @@ import BibleVerseCard from "@/components/HomeTab/BibleVerseCard";
 import Streak from "@/components/HomeTab/Streak";
 import MoodBottomSheet from "@/components/Mood/MoodButtomSheet";
 import { MoodService } from "@/services/mood.service";
+import { JournalService } from "@/services/journal.service";
+import { VerseService } from "@/services/verse.service";
 import { router } from "expo-router";
 import { Mood } from "@/types/mood";
+import { Journal } from "@/types/journal";
+import { Verse } from "@/types/verse";
 import { MoodAnalytics } from "@/types/analytics";
 
 const { width } = Dimensions.get("window");
@@ -121,11 +125,15 @@ const StatPill = ({
 export default function HomeScreen() {
     const [homeData, setHomeData] = useState<HomeData | null>(null);
     const [todayMood, setTodayMood] = useState<Mood | null>(null);
+    const [latestJournal, setLatestJournal] = useState<Journal | null>(null);
+    const [cachedVerse, setCachedVerse] = useState<Verse | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [streak, setStreak] = useState(0);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
     const moodService = new MoodService();
+    const journalService = new JournalService();
+    const verseService = new VerseService();
 
 
     const animValues = useRef(
@@ -153,13 +161,33 @@ export default function HomeScreen() {
     const loadData = async (isRefresh = false) => {
         if (!isRefresh) setLoading(true);
         try {
-            const [home, streakData, mood] = await Promise.all([getHomeData(), getStreak(), moodService.getTodayMood()]);
+            const [home, streakData, mood, journal, verse] = await Promise.all([
+                getHomeData(),
+                getStreak(),
+                moodService.getTodayMood(),
+                journalService.getLatestJournal(),
+                verseService.getActiveVerse()
+            ]);
+
             setHomeData(home);
             setStreak(streakData?.streak ?? 0);
             setTodayMood(mood);
+            setLatestJournal(journal);
+
+
+            // Cache the API verse if available, then use cached verse for display
+            if (verse) {
+                setCachedVerse(verse);
+            } 
+
             setTimeout(animateEntry, 50);
         } catch (error) {
             console.error("Failed to load:", error);
+            // Even if API fails, try to load cached verse offline
+            try {
+                const offlineVerse = await verseService.getActiveVerse();
+                if (offlineVerse) setCachedVerse(offlineVerse);
+            } catch (e) { }
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -297,7 +325,7 @@ export default function HomeScreen() {
                     className="mt-2"
                 >
                     <SectionHeader icon="📖" title="Daily Verse" delay={250} />
-                    {homeData && <BibleVerseCard verse={homeData.verse} />}
+                    <BibleVerseCard verse={cachedVerse || homeData?.verse || null} />
                 </Animated.View>
 
                 {/* ═══ JOURNAL ═══ */}
@@ -312,17 +340,18 @@ export default function HomeScreen() {
                         icon="📝"
                         title="Journal"
                         delay={350}
-                        action={{ label: "See All →", onPress: () => {  router.replace('/(tabs)/journal')} }}
+                        action={{ label: "See All →", onPress: () => { router.replace('/(tabs)/journal') } }}
                     />
                     {homeData && (
                         <JournalPreview
-                            title={homeData.journal?.title}
-                            content={homeData.journal?.content}
+                            title={latestJournal?.title || homeData.journal?.title}
+                            content={latestJournal?.content || homeData.journal?.content}
+                            date={latestJournal ? new Date(latestJournal.createdAt || latestJournal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : undefined}
                         />
                     )}
                 </Animated.View>
 
-               
+
             </ScrollView>
 
             {/* Mood Bottom Sheet */}

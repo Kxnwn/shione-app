@@ -13,7 +13,15 @@ export const initializeDatabase = () => {
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
                 isSynced INTEGER DEFAULT 0
-            )
+            );
+            CREATE TABLE IF NOT EXISTS journals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                isSynced INTEGER DEFAULT 0
+            );
         `
     )
 }

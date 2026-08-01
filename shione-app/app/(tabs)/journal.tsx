@@ -19,35 +19,30 @@ import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { createJournal, getJournals, updateJournal, deleteJournal } from '@/api/journal.api';
-import { getHomeData } from '@/api/home.api';
-
-type Journal = {
-    id?: number;
-    title: string;
-    content: string;
-    createdAt: string;
-};
+import { JournalService } from '@/services/journal.service';
+import { Journal } from '@/types/journal';
 
 const { width } = Dimensions.get('window');
 
 const groupJournalsByDate = (journals: Journal[]) => {
-    const sortedJournals = [...journals].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const sortedJournals = [...journals].sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.created_at).getTime();
+        const dateB = new Date(b.createdAt || b.created_at).getTime();
+        return dateB - dateA;
+    });
 
     const grouped: Record<string, Journal[]> = {};
 
     sortedJournals.forEach((journal) => {
-        const date = new Date(journal.createdAt);
+        const date = new Date(journal.createdAt || journal.created_at);
         const today = new Date();
         const yesterday = new Date();
         yesterday.setDate(today.getDate() - 1);
 
         let title = date.toLocaleDateString("en-US", {
-         month: "long",
-         day: "numeric",
-         year: "numeric",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
         });
 
         if (date.toDateString() === today.toDateString()) {
@@ -74,13 +69,14 @@ const groupJournalsByDate = (journals: Journal[]) => {
             if (aP !== undefined) return -1;
             if (bP !== undefined) return 1;
             return (
-                new Date(b.data[0].createdAt).getTime() -
-                new Date(a.data[0].createdAt).getTime()
+                new Date(b.data[0].createdAt || b.data[0].created_at).getTime() -
+                new Date(a.data[0].createdAt || a.data[0].created_at).getTime()
             );
         });
 };
 
 export default function JournalScreen() {
+    const journalService = new JournalService();
     const [journals, setJournals] = useState<Journal[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -97,50 +93,25 @@ export default function JournalScreen() {
 
     const loadJournals = async () => {
         try {
-            const data = await getJournals();
-
-            if (Array.isArray(data) && data.length > 0) {
-                setJournals(data);
-                return;
-            }
-
-            if (data && typeof data === 'object' && data.title) {
-                setJournals([data]);
-                return;
-            }
-
-            const homeData = await getHomeData();
-            if (homeData?.journal) {
-                setJournals([homeData.journal]);
-            } else {
-                setJournals([]);
-            }
+            const data = await journalService.getJournals();
+            setJournals(data || []);
         } catch (error) {
-            console.log('getJournals failed, using fallback:', error);
-            try {
-                const homeData = await getHomeData();
-                if (homeData?.journal) {
-                    setJournals([homeData.journal]);
-                } else {
-                    setJournals([]);
-                }
-            } catch (e) {
-                setJournals([]);
-            }
+            console.log('getJournals failed:', error);
+            setJournals([]);
         } finally {
             setIsLoading(false);
         }
     };
 
     const filteredJournals = journals.filter((journal) => {
-    const keyword = search.toLowerCase();
+        const keyword = search.toLowerCase();
 
-    return (
-        journal.title.toLowerCase().includes(keyword) ||
-        journal.content.toLowerCase().includes(keyword)
-    );
-});
- const sections = groupJournalsByDate(filteredJournals);
+        return (
+            journal.title.toLowerCase().includes(keyword) ||
+            journal.content.toLowerCase().includes(keyword)
+        );
+    });
+    const sections = groupJournalsByDate(filteredJournals);
 
     useEffect(() => {
         loadJournals();
@@ -177,10 +148,10 @@ export default function JournalScreen() {
 
         try {
             if (isEditing && selectedId) {
-                await updateJournal(selectedId, title, content);
+                await journalService.updateJournal(selectedId, title, content);
                 Alert.alert('Saved!', 'Journal updated');
             } else {
-                await createJournal(title, content);
+                await journalService.createJournal(title, content);
                 Alert.alert('Created!', 'New journal saved');
             }
 
@@ -189,6 +160,7 @@ export default function JournalScreen() {
             setContent('');
             await loadJournals();
         } catch (error) {
+            console.error(error);
             Alert.alert('Error', 'Failed to save');
         }
     };
@@ -202,10 +174,11 @@ export default function JournalScreen() {
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        await deleteJournal(selectedId);
+                        await journalService.deleteJournal(selectedId);
                         setModalVisible(false);
                         await loadJournals();
                     } catch (error) {
+                        console.error(error);
                         Alert.alert('Error', 'Failed to delete');
                     }
                 }
@@ -561,6 +534,8 @@ export default function JournalScreen() {
                                 className="bg-neutral-50 rounded-2xl border border-neutral-200"
                                 contentContainerStyle={{ minHeight: 280 }}
                                 showsVerticalScrollIndicator={true}
+                                keyboardShouldPersistTaps="handled"
+                                keyboardDismissMode="interactive"
                             >
                                 <TextInput
                                     value={content}

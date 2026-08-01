@@ -21,7 +21,10 @@ import { BlurView } from "expo-blur";
 import { Feather } from "@expo/vector-icons";
 import { saveMood } from "@/api/mood.api";
 import { MoodService } from "@/services/mood.service";
+import { VerseService } from "@/services/verse.service";
 import { NewMood } from "@/types/mood";
+import { getRandomVerse } from "@/api/verse.api";
+
 
 type MoodBottomSheetProps = {
     onMoodSaved: () => void;
@@ -67,6 +70,7 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
         }, [scaleAnims]);
 
         const moodService = new MoodService();
+        const verseService = new VerseService();
 
 
         const handleSelectMood = (mood: string, index: number) => {
@@ -81,6 +85,15 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
         };
 
 
+        const moodCategoryMap: Record<string, string> = {
+    Happy: "GRATITUDE",
+    Calm: "PEACE",
+    Sad: "HOPE",
+    Anxiety: "PEACE",
+    Angry: "LOVE",
+    Excited: "JOY",
+};
+
 
 
         const handleSaveMood = async () => {
@@ -92,10 +105,27 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                 
               
                 await moodService.saveMood(selectedMood, note);
+                const category = moodCategoryMap[selectedMood];
+
+if (category) {
+    const verse = await getRandomVerse(category);
+
+    if (verse) {
+        await verseService.cacheVerseFromApi(verse);
+
+        console.log(
+            "✅ Verse fetched and cached:",
+            verse.reference
+        );
+    }
+}
                 
                 const todayMood = await moodService.getTodayMood();
-
                 console.log("Today's Mood:", todayMood);
+
+                // Cache a random Bible verse based on the mood category
+                const cachedVerse = await verseService.getVerseForMood(selectedMood);
+                console.log("📖 Cached verse for mood:", cachedVerse?.reference);
                 
                 // Reset state
                 setSelectedMood(null);
