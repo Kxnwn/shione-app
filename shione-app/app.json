@@ -2,9 +2,9 @@
   "expo": {
     "name": "Shione",
     "slug": "shione-app",
-    "version": "1.0.0",
+    "version": "1.2.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/ShioneFlower.png",
     "scheme": "shioneapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -24,7 +24,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/ShioneFlower.png"
     },
     "plugins": [
       "expo-router",

@@ -11,15 +11,18 @@ import {
     Pressable,
     Animated,
     Alert,
+    RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
+import { useIsFocused } from "@react-navigation/native";
 import { removeToken } from "@/services/storage/auth.storage";
 import { removeOnboarding } from "@/services/storage/onboarding.storage";
 import { changePassword, getProfile, getStreak, updateProfile } from "@/api/profile.api";
+import { subscribeToLocalDataChanges } from "@/services/local-data-events";
 
 interface ProfileData {
     getProfile: {
@@ -117,6 +120,7 @@ export default function ProfileScreen() {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const [streak, setStreak] = useState<number>(0);
     const [changePasswordVisible, setChangePasswordVisible] = useState(false);
+    const [isOfflineMode, setIsOfflineMode] = useState(false);
 
     // Change password form state
     const [currentPassword, setCurrentPassword] = useState("");
@@ -127,7 +131,9 @@ export default function ProfileScreen() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
+    const [isLocalUpdate, setIsLocalUpdate] = useState(false);
 
     // Edit profile modal + form state
     const [editProfileVisible, setEditProfileVisible] = useState(false);
@@ -140,6 +146,7 @@ export default function ProfileScreen() {
     // Entry animations
     const headerAnim = useRef(new Animated.Value(0)).current;
     const cardAnim = useRef(new Animated.Value(0)).current;
+    const isFocused = useIsFocused();
 
     useEffect(() => {
         Animated.timing(headerAnim, { toValue: 1, duration: 700, useNativeDriver: true }).start();
@@ -150,8 +157,12 @@ export default function ProfileScreen() {
         try {
             const data = await getProfile();
             setProfileData(data);
+            setIsOfflineMode(false);
+            setIsLocalUpdate(false);
         } catch (error) {
-            console.log(error);
+            console.log("Profile fetch failed, using fallback state:", error);
+            setIsOfflineMode(true);
+            setIsLocalUpdate(false);
         }
     };
 
@@ -161,14 +172,35 @@ export default function ProfileScreen() {
             const streakValue =
                 typeof data === "number" ? data : data?.streak ?? data?.currentStreak ?? 0;
             setStreak(streakValue);
+            setIsOfflineMode((prev) => prev || typeof data === "object" && data?.streak === 0 && data?.currentStreak === undefined);
         } catch (error) {
-            console.log(error);
+            console.log("Streak fetch failed, using fallback state:", error);
+            setIsOfflineMode(true);
+        }
+    };
+
+    const refreshProfile = async () => {
+        setRefreshing(true);
+        try {
+            await Promise.all([getData(), getStreakData()]);
+        } finally {
+            setRefreshing(false);
         }
     };
 
     useEffect(() => {
-        getData();
-        getStreakData();
+        if (!isFocused) return;
+
+        void refreshProfile();
+    }, [isFocused]);
+
+    useEffect(() => {
+        const unsubscribe = subscribeToLocalDataChanges(() => {
+            setIsLocalUpdate(true);
+            void refreshProfile();
+        });
+
+        return unsubscribe;
     }, []);
 
     const handleLogout = async () => {
@@ -331,7 +363,12 @@ export default function ProfileScreen() {
                 <View className="absolute top-20 -left-12 w-48 h-48 rounded-full bg-[#A78BFA]/5" />
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} className="flex-1" contentContainerStyle={{ paddingBottom: 110 }}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                className="flex-1"
+                contentContainerStyle={{ paddingBottom: 110 }}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshProfile} tintColor="#8854C0" colors={["#8854C0"]} />}
+            >
                 {/* ═══ HEADER / AVATAR ═══ */}
                 <Animated.View
                     style={{ opacity: headerAnim, transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }}
@@ -357,6 +394,15 @@ export default function ProfileScreen() {
                     <Text className="text-sm text-neutral-400 mt-1 text-center">
                         {profileData?.getProfile?.email || ""}
                     </Text>
+
+                    {(isOfflineMode || isLocalUpdate) && (
+                        <View className="mt-3 flex-row items-center rounded-full bg-[#8854C0]/10 px-3 py-1.5">
+                            <Text className="mr-2 text-sm">{isLocalUpdate ? "✨" : "📱"}</Text>
+                            <Text className="text-[#8854C0] text-xs font-semibold uppercase tracking-[0.2em]">
+                                {isLocalUpdate ? "updated locally" : "offline mode"}
+                            </Text>
+                        </View>
+                    )}
 
                     {profileData?.getProfile?.createdAt && (
                         <View

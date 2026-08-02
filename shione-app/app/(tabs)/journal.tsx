@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { JournalService } from '@/services/journal.service';
 import { Journal } from '@/types/journal';
+import { subscribeToLocalDataChanges } from '@/services/local-data-events';
 
 const { width } = Dimensions.get('window');
 
@@ -115,6 +116,12 @@ export default function JournalScreen() {
 
     useEffect(() => {
         loadJournals();
+
+        const unsubscribe = subscribeToLocalDataChanges(() => {
+            void loadJournals();
+        });
+
+        return unsubscribe;
     }, []);
 
     const onRefresh = useCallback(() => {

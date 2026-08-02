@@ -5,13 +5,15 @@ import {
     Dimensions,
     Animated,
     Easing,
+    RefreshControl,
 } from "react-native";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getMoodAnalytics } from "@/api/analytics.api";
 import { MoodAnalytics } from "@/types/analytics";
 import { PieChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { AnalyticsService } from "@/services/analytics.service";
+import { subscribeToLocalDataChanges } from "@/services/local-data-events";
 
 const { width } = Dimensions.get("window");
 
@@ -22,6 +24,7 @@ const moodConfig = {
     Angry: { emoji: "😡", color: "#EF5350", gradient: "#E57373" },
     Excited: { emoji: "🤩", color: "#FF9800", gradient: "#FFB74D" },
     Anxious: { emoji: "😰", color: "#AB47BC", gradient: "#CE93D8" },
+    Anxiety: { emoji: "😰", color: "#AB47BC", gradient: "#CE93D8" },
 } as const;
 
 const AnimatedCard = ({
@@ -74,8 +77,11 @@ export default function AnalyticsScreen() {
     const [analytics, setAnalytics] = useState<MoodAnalytics[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedMood, setSelectedMood] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const [isOfflineMode, setIsOfflineMode] = useState(false);
 
     const pulseAnim = useRef(new Animated.Value(1)).current;
+    const analyticsService = useRef(new AnalyticsService()).current;
 
     useEffect(() => {
         if (loading) {
@@ -98,20 +104,37 @@ export default function AnalyticsScreen() {
         }
     }, [loading]);
 
-    const loadAnalytics = async () => {
+    const loadAnalytics = useCallback(async (isRefresh = false) => {
+        if (!isRefresh) {
+            setLoading(true);
+        }
+
         try {
-            const data = await getMoodAnalytics();
-            setAnalytics(data);
+            const result = await analyticsService.getMoodAnalytics();
+            setAnalytics(result.data);
+            setIsOfflineMode(result.isOffline);
         } catch (error) {
             console.error("Failed to load analytics:", error);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
-    };
+    }, [analyticsService]);
 
     useEffect(() => {
-        loadAnalytics();
-    }, []);
+        void loadAnalytics();
+
+        const unsubscribe = subscribeToLocalDataChanges(() => {
+            void loadAnalytics(true);
+        });
+
+        return unsubscribe;
+    }, [loadAnalytics]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        void loadAnalytics(true);
+    }, [loadAnalytics]);
 
     const totalEntries = analytics.reduce(
         (sum, item) => sum + item._count.mood,
@@ -119,7 +142,8 @@ export default function AnalyticsScreen() {
     );
 
     const pieData = analytics.map((item) => {
-        const config = moodConfig[item.mood as keyof typeof moodConfig];
+        const config =
+            moodConfig[item.mood as keyof typeof moodConfig] ?? moodConfig.Anxious;
         const percentage =
             totalEntries > 0
                 ? Math.round((item._count.mood / totalEntries) * 100)
@@ -205,6 +229,14 @@ export default function AnalyticsScreen() {
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 115 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor="#8854C0"
+                        colors={["#8854C0"]}
+                    />
+                }
             >
                 {/* Header */}
                 <AnimatedCard delay={0}>
@@ -221,6 +253,14 @@ export default function AnalyticsScreen() {
                                 {totalEntries.toLocaleString()} total entries
                             </Text>
                         </View>
+                        {isOfflineMode && (
+                            <View className="mt-3 flex-row items-center self-start rounded-full bg-[#8854C0]/10 px-3 py-1.5">
+                                <Text className="mr-2 text-sm">📱</Text>
+                                <Text className="text-[#8854C0] text-xs font-semibold uppercase tracking-[0.2em]">
+                                    offline mode
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </AnimatedCard>
 

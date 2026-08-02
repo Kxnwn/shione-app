@@ -1,5 +1,6 @@
 import { MoodRepository, } from "@/repositories/mood.repositories";
 import { Mood, NewMood } from "@/types/mood";
+import { notifyLocalDataChanged } from "@/services/local-data-events";
 
 export class MoodService {
 
@@ -24,7 +25,9 @@ export class MoodService {
         updated_at: new Date().toISOString(),
         isSynced: false,
     };
-        return await this.repository.saveMood(newMood)
+        const result = await this.repository.saveMood(newMood);
+        notifyLocalDataChanged("mood");
+        return result;
     }
 
 
@@ -54,7 +57,9 @@ export class MoodService {
         isSynced: false,
     }
      
-        return await this.repository.updateMood(updateMood)
+        const result = await this.repository.updateMood(updateMood);
+        notifyLocalDataChanged("mood");
+        return result;
     }
 
     async getTodayMood() {
@@ -62,7 +67,9 @@ export class MoodService {
     }
 
     async deleteMood(id: number) {
-        return await this.repository.deleteMood(id)
+        const result = await this.repository.deleteMood(id);
+        notifyLocalDataChanged("mood");
+        return result;
     }
 
     async getUnsyncedMoods(): Promise<Mood[]> {

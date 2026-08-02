@@ -21,15 +21,35 @@ export const scheduleDailyMoodReminder = async () => {
             body: "Don't forget to log your mood today 💜",
         },
         trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 10,
-    },
-        // trigger: {
-        //     type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        //     hour: 0,
-        //     minute: 0,
-        //     seconds: 0
-        // },
+            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+            seconds: 60 * 60 * 24,
+        },
+    });
+};
+
+export const scheduleStreakReminder = async () => {
+    await Notifications.scheduleNotificationAsync({
+        content: {
+            title: "🔥 Keep your streak going",
+            body: "A quick mood check-in will help you keep your Shione streak alive.",
+        },
+        trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+            seconds: 60 * 60 * 12,
+        },
+    });
+};
+
+export const scheduleJournalReminder = async () => {
+    await Notifications.scheduleNotificationAsync({
+        content: {
+            title: "📝 Journal reminder",
+            body: "Your thoughts matter — add a quick journal entry before the day ends.",
+        },
+        trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+            seconds: 60 * 60 * 24,
+        },
     });
 };
 
@@ -41,4 +61,6 @@ export const initializeNotifications = async () => {
     await Notifications.cancelAllScheduledNotificationsAsync();
 
     await scheduleDailyMoodReminder();
+    await scheduleStreakReminder();
+    await scheduleJournalReminder();
 };

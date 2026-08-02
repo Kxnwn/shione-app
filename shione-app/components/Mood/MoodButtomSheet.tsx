@@ -24,6 +24,7 @@ import { MoodService } from "@/services/mood.service";
 import { VerseService } from "@/services/verse.service";
 import { NewMood } from "@/types/mood";
 import { getRandomVerse } from "@/api/verse.api";
+import { notifyLocalDataChanged } from "@/services/local-data-events";
 
 
 type MoodBottomSheetProps = {
@@ -135,6 +136,7 @@ if (category) {
                 (ref as React.RefObject<BottomSheetModal>).current?.dismiss();
                 
                 // Notify parent
+                notifyLocalDataChanged("mood");
                 onMoodSaved();
             } catch (error) {
                 console.error("Save mood error:", error);

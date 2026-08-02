@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { initializeNotifications, scheduleDailyMoodReminder } from '@/services/notification.service';
 import { useEffect } from 'react';
 import { initializeDatabase } from '@/database/database';
+import { SyncService } from '@/services/sync.service';
 
 export default function RootLayout() {
 
@@ -21,8 +22,10 @@ export default function RootLayout() {
 // }, []);
 
 useEffect(() => {
-    // Initialize the SQLite database
     initializeDatabase();
+
+    const syncService = new SyncService();
+    void syncService.startAutoSync();
 }, []);
 
 

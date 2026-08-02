@@ -64,4 +64,12 @@ export class JournalRepository {
         if (!journal) return null;
         return { ...journal, createdAt: journal.createdAt || journal.created_at };
     }
+
+    async getAllJournals(): Promise<Journal[]> {
+    return db.getAllSync<Journal>(`
+        SELECT *
+        FROM journals
+        ORDER BY created_at DESC
+    `);
+}
 }

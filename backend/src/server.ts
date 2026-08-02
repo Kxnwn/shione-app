@@ -7,6 +7,7 @@ import homeRoutes from "./routes/home.routes.js"
 import cors from "cors"
 import chatRoutes from './routes/chat.routes.js'
 import analyticsRoutes from './routes/analytics.routes.js'
+import verseRoutes from './routes/verse.routes.js'
 const app = express();
 
 
@@ -20,7 +21,7 @@ app.use("/api/moods", moodRoutes)
 app.use("/api/journals", journalRoutes)
 app.use("/api/chat", chatRoutes)
 app.use("/api/analytics", analyticsRoutes)
-
+app.use("/api/verse", verseRoutes);
 
 app.get("/api/test", (req, res) => {
     res.json({ message: "Backend is working!" });

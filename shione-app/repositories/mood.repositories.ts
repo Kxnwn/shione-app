@@ -51,4 +51,11 @@ export class MoodRepository {
         `, [id]);
         return mood;
     }
+    async getAllMoods(): Promise<Mood[]> {
+    const moods = db.getAllSync<Mood>(`
+        SELECT * FROM moods
+        ORDER BY created_at DESC
+    `);
+    return moods;
+}
 }

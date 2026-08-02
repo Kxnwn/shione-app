@@ -1,5 +1,6 @@
 import { JournalRepository } from "@/repositories/journal.repositories";
 import { Journal, NewJournal } from "@/types/journal";
+import { notifyLocalDataChanged } from "@/services/local-data-events";
 
 export class JournalService {
     private repository = new JournalRepository();
@@ -14,6 +15,7 @@ export class JournalService {
         };
         console.log("📝 [JournalService] Saving new journal locally to SQLite...", newJournal);
         const result = await this.repository.saveJournal(newJournal);
+        notifyLocalDataChanged("journal");
         console.log("✅ [JournalService] Journal successfully saved in SQLite database!");
         return result;
     }
@@ -44,11 +46,15 @@ export class JournalService {
             isSynced: false,
         };
 
-        return await this.repository.updateJournal(updatedJournal);
+        const result = await this.repository.updateJournal(updatedJournal);
+        notifyLocalDataChanged("journal");
+        return result;
     }
 
     async deleteJournal(id: number) {
-        return await this.repository.deleteJournal(id);
+        const result = await this.repository.deleteJournal(id);
+        notifyLocalDataChanged("journal");
+        return result;
     }
 
     async getUnsyncedJournals(): Promise<Journal[]> {

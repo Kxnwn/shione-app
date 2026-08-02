@@ -1,8 +1,5 @@
-import { Mood } from "./mood";
-
 export interface MoodAnalytics {
-    mood: Mood;
-
+    mood: string;
     _count: {
         mood: number;
     };
