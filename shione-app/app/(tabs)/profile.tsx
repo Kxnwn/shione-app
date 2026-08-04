@@ -527,7 +527,7 @@ export default function ProfileScreen() {
                     </BlurView>
 
                     <Text className="text-center text-neutral-300 text-xs mt-6">
-                        Shione v1.0 • Made with 💜
+                        Shione v2.0 • Made with 💜
                     </Text>
                 </Animated.View>
             </ScrollView>
