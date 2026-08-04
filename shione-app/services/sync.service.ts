@@ -2,7 +2,7 @@ import NetInfo from "@react-native-community/netinfo";
 import { MoodService } from "./mood.service";
 import { JournalService } from "./journal.service";
 import { VerseService } from "./verse.service";
-import { getProfile, getStreak, updateProfile } from "@/api/profile.api";
+import { getProfile, getStreak } from "@/api/profile.api";
 import { saveMood } from "@/api/mood.api";
 import { createJournal } from "@/api/journal.api";
 import { getRandomVerse } from "@/api/verse.api";
@@ -15,10 +15,15 @@ export class SyncService {
 
     async startAutoSync() {
         const unsubscribe = NetInfo.addEventListener((state) => {
-            if (state.isConnected) {
+            if (state.isConnected || state.isInternetReachable) {
                 void this.syncAll();
             }
         });
+
+        const initialState = await NetInfo.fetch();
+        if (initialState.isConnected || initialState.isInternetReachable) {
+            void this.syncAll();
+        }
 
         return unsubscribe;
     }
@@ -31,14 +36,22 @@ export class SyncService {
         try {
             const unsyncedMoods = await this.moodService.getUnsyncedMoods();
             for (const mood of unsyncedMoods) {
-                await saveMood(mood.mood, mood.note ?? "");
-                await this.moodService.markAsSynced(mood.id);
+                try {
+                    await saveMood(mood.mood, mood.note ?? "");
+                    await this.moodService.markAsSynced(mood.id);
+                } catch (error) {
+                    console.warn("[Sync] Failed to sync mood", mood.id, error);
+                }
             }
 
             const unsyncedJournals = await this.journalService.getUnsyncedJournals();
             for (const journal of unsyncedJournals) {
-                await createJournal(journal.title, journal.content ?? "");
-                await this.journalService.markAsSynced(journal.id);
+                try {
+                    await createJournal(journal.title, journal.content ?? "");
+                    await this.journalService.markAsSynced(journal.id);
+                } catch (error) {
+                    console.warn("[Sync] Failed to sync journal", journal.id, error);
+                }
             }
 
             await this.syncProfile();

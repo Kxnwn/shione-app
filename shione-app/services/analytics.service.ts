@@ -1,6 +1,6 @@
+import NetInfo from "@react-native-community/netinfo";
 import api from "../api/api";
-import { MoodRepository } from "../repositories/mood.repositories";
-import { JournalRepository } from "../repositories/journal.repositories";
+import { AnalyticsRepository } from "../repositories/analytics.repositories";
 import { getToken } from "./storage/auth.storage";
 import { MoodAnalytics } from "../types/analytics";
 
@@ -10,8 +10,7 @@ export interface MoodAnalyticsResult {
 }
 
 export class AnalyticsService {
-    private moodRepository = new MoodRepository();
-    private journalRepository = new JournalRepository();
+    private analyticsRepository = new AnalyticsRepository();
 
     async getAnalyticsSummary() {
         const [
@@ -35,19 +34,15 @@ export class AnalyticsService {
     }
 
     async getMoodSummary() {
-        const moods = await this.moodRepository.getAllMoods();
-
-        const summary: Record<string, number> = {};
-        moods.forEach((mood) => {
-            summary[mood.mood] = (summary[mood.mood] || 0) + 1;
-        });
-        return summary;
+        return this.analyticsRepository.getMoodSummary();
     }
 
     async getMoodAnalytics(): Promise<MoodAnalyticsResult> {
         const token = await getToken();
-        const moods = await this.moodRepository.getAllMoods();
-        const hasLocalEntries = moods.length > 0;
+        const moodCount = await this.analyticsRepository.getMoodCount();
+        const hasLocalEntries = moodCount > 0;
+        const netState = await NetInfo.fetch();
+        const isConnected = Boolean(netState?.isConnected || netState?.isInternetReachable);
 
         if (!hasLocalEntries) {
             try {
@@ -69,52 +64,23 @@ export class AnalyticsService {
             }
         }
 
-        const summary: Record<string, number> = {};
-
-        moods.forEach((mood) => {
-            const key = mood.mood?.trim();
-            if (!key) return;
-            summary[key] = (summary[key] || 0) + 1;
-        });
-
-        const data = Object.entries(summary).map(([mood, count]) => ({
-            mood,
-            _count: { mood: count },
-        }));
+        const data = await this.analyticsRepository.getMoodAnalytics();
 
         return {
             data,
-            isOffline: hasLocalEntries ? true : false,
+            isOffline: !isConnected,
         };
     }
 
     async getJournalCount() {
-        const journals = await this.journalRepository.getAllJournals();
-
-        return journals.length;
+        return this.analyticsRepository.getJournalCount();
     }
 
     async getMostFrequentMood() {
-        const summary = await this.getMoodSummary();
-
-        let mostFrequent: string | null = null;
-        let count = 0;
-
-        Object.entries(summary).forEach(([mood, value]) => {
-            if (value > count) {
-                count = value;
-                mostFrequent = mood;
-            }
-        });
-
-        return {
-            mood: mostFrequent,
-            count,
-        };
+        return this.analyticsRepository.getMostFrequentMood();
     }
 
     async getMoodCount() {
-        const moods = await this.moodRepository.getAllMoods();
-        return moods.length;
+        return this.analyticsRepository.getMoodCount();
     }
 }

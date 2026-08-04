@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { Feather } from "@expo/vector-icons";
 import { getHomeData } from "@/api/home.api";
-import { getStreak } from "@/api/profile.api";
+import { getProfile, getStreak } from "@/api/profile.api";
 import Greeting from "@/components/HomeTab/Greetings";
 import MoodCard from "@/components/HomeTab/MoodCard";
 import JournalPreview from "@/components/HomeTab/JournalPreview";
@@ -160,34 +160,45 @@ export default function HomeScreen() {
 
     const loadData = async (isRefresh = false) => {
         if (!isRefresh) setLoading(true);
+
         try {
-            const [home, streakData, mood, journal, verse] = await Promise.all([
-                getHomeData(),
+            const [homeResponse, streakData, mood, journal, verse] = await Promise.all([
+                getHomeData().catch(() => null),
                 getStreak(),
                 moodService.getTodayMood(),
                 journalService.getLatestJournal(),
-                verseService.getActiveVerse()
+                verseService.getActiveVerse(),
             ]);
 
-            setHomeData(home);
+            if (homeResponse) {
+                setHomeData(homeResponse);
+            } else {
+                const profileData = await getProfile();
+                setHomeData({
+                    user: profileData.getProfile,
+                    mood: null,
+                    journal: null,
+                    verse: null,
+                });
+            }
+
             setStreak(streakData?.streak ?? 0);
             setTodayMood(mood);
             setLatestJournal(journal);
 
-
-            // Cache the API verse if available, then use cached verse for display
             if (verse) {
                 setCachedVerse(verse);
-            } 
+            }
 
             setTimeout(animateEntry, 50);
         } catch (error) {
             console.error("Failed to load:", error);
-            // Even if API fails, try to load cached verse offline
             try {
                 const offlineVerse = await verseService.getActiveVerse();
                 if (offlineVerse) setCachedVerse(offlineVerse);
-            } catch (e) { }
+            } catch (e) {
+                // ignore
+            }
         } finally {
             setLoading(false);
             setRefreshing(false);
