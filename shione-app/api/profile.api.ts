@@ -1,10 +1,22 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 import api from "./api";
 import { MoodRepository } from "@/repositories/mood.repositories";
 import { JournalRepository } from "@/repositories/journal.repositories";
 import { getToken } from "@/services/storage/auth.storage";
 
 const PROFILE_CACHE_KEY = "profile-cache";
+const DEFAULT_PROFILE_NAME = "User";
+
+const isNetworkAvailable = async () => {
+    try {
+        const state = await NetInfo.fetch();
+        return Boolean(state?.isConnected || state?.isInternetReachable);
+    } catch (error) {
+        console.warn("Unable to determine network state", error);
+        return false;
+    }
+};
 
 const getCachedProfile = async () => {
     try {
@@ -37,13 +49,13 @@ const normalizeProfilePayload = async (payload: any) => {
         ? {
             id: profileSource?.id ?? 0,
             email: profileSource?.email ?? "",
-            name: profileSource?.name ?? "Offline User",
+            name: profileSource?.name ?? DEFAULT_PROFILE_NAME,
             createdAt: profileSource?.createdAt ?? profileSource?.created_at ?? new Date().toISOString(),
         }
         : {
             id: 0,
             email: "",
-            name: "Offline User",
+            name: DEFAULT_PROFILE_NAME,
             createdAt: new Date().toISOString(),
         };
 
@@ -73,7 +85,7 @@ const buildOfflineProfilePayload = async (override?: any) => {
 
     const baseProfile = override?.getProfile ?? cachedProfile?.getProfile ?? {
         id: 0,
-        name: "Offline User",
+        name: DEFAULT_PROFILE_NAME,
         email: "",
         createdAt: new Date().toISOString(),
     };
@@ -81,7 +93,7 @@ const buildOfflineProfilePayload = async (override?: any) => {
     const offlineProfile = {
         getProfile: {
             id: baseProfile.id ?? 0,
-            name: baseProfile.name ?? "Offline User",
+            name: baseProfile.name ?? DEFAULT_PROFILE_NAME,
             email: baseProfile.email ?? "",
             createdAt: baseProfile.createdAt ?? new Date().toISOString(),
         },
@@ -136,8 +148,25 @@ export const getProfile = async () => {
         await saveCachedProfile(normalized);
         return normalized;
     } catch (error) {
-        const offlineProfile = await buildOfflineProfilePayload();
-        return offlineProfile;
+        const cachedProfile = await getCachedProfile();
+        const hasInternet = await isNetworkAvailable();
+
+        if (cachedProfile?.getProfile) {
+            return cachedProfile;
+        }
+
+        if (hasInternet) {
+            return buildOfflineProfilePayload({
+                getProfile: {
+                    id: 0,
+                    name: DEFAULT_PROFILE_NAME,
+                    email: "",
+                    createdAt: new Date().toISOString(),
+                },
+            });
+        }
+
+        return buildOfflineProfilePayload();
     }
 };
 

@@ -6,31 +6,65 @@ import { getToken, removeToken } from '@/services/storage/auth.storage';
 import { getOnboarding } from '@/services/storage/onboarding.storage';
 import { getProfile } from '@/api/profile.api';
 
+const isValidAuthenticatedProfile = (profile: any) => {
+    const profileName = profile?.getProfile?.name;
+    const profileId = profile?.getProfile?.id;
+
+    if (!profile || !profile.getProfile) {
+        return false;
+    }
+
+    if (profileName === 'Offline User' || profileName === 'offline user') {
+        return false;
+    }
+
+    return typeof profileId === 'number' ? profileId > 0 : Boolean(profileName);
+};
+
 const checkLogin = async () => {
     try {
         const token = await getToken();
-        console.log("TOKEN:", token);
-        console.log("TOKEN TYPE:", typeof token);
 
-        if (token) {
-            await getProfile();
-            
-            router.replace("/(tabs)");
+        if (!token) {
+            const hasSeenOnboarding = await getOnboarding();
+
+            if (hasSeenOnboarding) {
+                router.replace('/(auth)/login');
+                return;
+            }
+
+            router.replace('/onboarding');
             return;
         }
+
+        const profile = await getProfile();
+
+        if (isValidAuthenticatedProfile(profile)) {
+            router.replace('/(tabs)');
+            return;
+        }
+
+        await removeToken();
+        const hasSeenOnboarding = await getOnboarding();
+
+        if (hasSeenOnboarding) {
+            router.replace('/(auth)/login');
+            return;
+        }
+
+        router.replace('/onboarding');
+    } catch (error) {
+        await removeToken();
+        console.log(error);
 
         const hasSeenOnboarding = await getOnboarding();
 
         if (hasSeenOnboarding) {
-            router.replace("/(auth)/login");
+            router.replace('/(auth)/login');
             return;
         }
 
-        router.replace("/onboarding");
-    } catch (error) {
-        await removeToken();
-        console.log(error);
-        router.replace("/onboarding");
+        router.replace('/onboarding');
     }
 };
 

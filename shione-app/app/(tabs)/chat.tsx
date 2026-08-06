@@ -1,5 +1,6 @@
 import { View, Text, FlatList, TextInput, TouchableOpacity, Platform, Keyboard, KeyboardEvent, NativeSyntheticEvent, NativeScrollEvent, ActivityIndicator, Animated } from 'react-native'
 import { useState, useEffect, useRef } from 'react'
+import NetInfo from '@react-native-community/netinfo';
 import { Feather } from '@expo/vector-icons';
 import { sendChat, chatHistory } from '@/api/chat.api';
 import ChatBubble from '@/components/Chat/ChatBubble';
@@ -16,6 +17,7 @@ export default function ChatScreen({}) {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
 
   const tabBarHeight = useBottomTabBarHeight();
   const insets = useSafeAreaInsets();
@@ -36,10 +38,20 @@ export default function ChatScreen({}) {
 
   const loadHistory = async () => {
     try {
+      const state = await NetInfo.fetch();
+      const hasConnection = Boolean(state?.isConnected || state?.isInternetReachable);
+      setIsOffline(!hasConnection);
+
+      if (!hasConnection) {
+        setMessages([]);
+        return;
+      }
+
       const history = await chatHistory();
       setMessages(history);
     } catch (error) {
       console.log(error);
+      setIsOffline(true);
     } finally {
       setIsLoadingHistory(false);
     }
@@ -83,6 +95,22 @@ export default function ChatScreen({}) {
     try {
       if (!message.trim()) return;
 
+      const state = await NetInfo.fetch();
+      const hasConnection = Boolean(state?.isConnected || state?.isInternetReachable);
+
+      if (!hasConnection) {
+        setIsOffline(true);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "ASSISTANT",
+            message: "I can’t chat right now because there’s no internet connection. Please reconnect and try again. 🌐",
+            isNew: true,
+          },
+        ]);
+        return;
+      }
+
       const userMessage = message;
 
       isAtBottomRef.current = true;
@@ -104,11 +132,12 @@ export default function ChatScreen({}) {
       ]);
     } catch (error) {
       console.log(error);
+      setIsOffline(true);
       setMessages((prev) => [
         ...prev,
         {
           role: "ASSISTANT",
-          message: "I'm sorry... I couldn't respond right now. I'm a little overwhelmed right now and need a brief moment before I can reply. 🌸",
+          message: "I can’t reply right now because the connection dropped. Please check your internet and try again. 🌐",
           isNew: true,
         },
       ]);
@@ -250,26 +279,34 @@ export default function ChatScreen({}) {
           marginBottom: isKeyboardVisible ? keyboardHeight + 12 : tabBarHeight + 60,
         }}
       >
-        <TextInput
-          value={message}
-          multiline
-          onChangeText={setMessage}
-          placeholder="Talk to Shione..."
-          placeholderTextColor="#B79CE0"
-          textAlignVertical="top"
-          className="flex-1 bg-white rounded-3xl px-4 py-3 border border-purple-100 text-[15px] text-neutral-700"
-          style={{
-            maxHeight: 120,
-            shadowColor: "#8854C0",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
-            elevation: 1,
-          }}
-        />
+        {isOffline ? (
+          <View className="flex-1 mr-2 rounded-3xl border border-purple-100 bg-white px-4 py-3">
+            <Text className="text-[13px] text-purple-500 font-medium">
+              Chat is unavailable offline. Connect to the internet to continue.
+            </Text>
+          </View>
+        ) : (
+          <TextInput
+            value={message}
+            multiline
+            onChangeText={setMessage}
+            placeholder="Talk to Shione..."
+            placeholderTextColor="#B79CE0"
+            textAlignVertical="top"
+            className="flex-1 bg-white rounded-3xl px-4 py-3 border border-purple-100 text-[15px] text-neutral-700"
+            style={{
+              maxHeight: 120,
+              shadowColor: "#8854C0",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.05,
+              shadowRadius: 4,
+              elevation: 1,
+            }}
+          />
+        )}
 
-        <TouchableOpacity onPress={handleSend} className="ml-2 rounded-full overflow-hidden">
-          <View className="px-5 py-3 rounded-full" style={{ backgroundColor: "#9B6DD6" }}>
+        <TouchableOpacity onPress={handleSend} className="ml-2 rounded-full overflow-hidden" disabled={isOffline}>
+          <View className="px-5 py-3 rounded-full" style={{ backgroundColor: isOffline ? "#D8C5F1" : "#9B6DD6" }}>
             <Text className="text-white font-medium">Send</Text>
           </View>
         </TouchableOpacity>
