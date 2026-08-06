@@ -1,4 +1,5 @@
 import React, { forwardRef, useMemo, useState, useCallback, useRef } from "react";
+import NetInfo from "@react-native-community/netinfo";
 import {
     BottomSheetModal,
     BottomSheetView,
@@ -108,23 +109,31 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                 await moodService.saveMood(selectedMood, note);
                 const category = moodCategoryMap[selectedMood];
 
-if (category) {
-    const verse = await getRandomVerse(category);
+                const state = await NetInfo.fetch();
+                const hasConnection = Boolean(state?.isConnected || state?.isInternetReachable);
 
-    if (verse) {
-        await verseService.cacheVerseFromApi(verse);
+                if (category && hasConnection) {
+                    const verse = await getRandomVerse(category);
 
-        console.log(
-            "✅ Verse fetched and cached:",
-            verse.reference
-        );
-    }
-}
+                    if (verse) {
+                        await verseService.cacheVerseFromApi(verse);
+                        console.log("✅ Verse fetched and cached:", verse.reference);
+                    }
+                } else if (category) {
+                    const fallbackVerse = await verseService.getVerseForMood(selectedMood);
+                    if (fallbackVerse) {
+                        await verseService.cacheVerseFromApi({
+                            verse: fallbackVerse.verse,
+                            reference: fallbackVerse.reference,
+                            category: fallbackVerse.category,
+                        });
+                        console.log("🧠 Offline mood verse reused:", fallbackVerse.reference);
+                    }
+                }
                 
                 const todayMood = await moodService.getTodayMood();
                 console.log("Today's Mood:", todayMood);
 
-                // Cache a random Bible verse based on the mood category
                 const cachedVerse = await verseService.getVerseForMood(selectedMood);
                 console.log("📖 Cached verse for mood:", cachedVerse?.reference);
                 
