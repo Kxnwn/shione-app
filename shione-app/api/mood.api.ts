@@ -3,6 +3,7 @@
 import api from "./api"
 import { getToken } from "@/services/storage/auth.storage"
 
+
 export const saveMood = async (
     mood: string,
     note: string
@@ -20,5 +21,6 @@ export const saveMood = async (
     }
 );
 
-return response.data.data
+return response.data.result
 }
+

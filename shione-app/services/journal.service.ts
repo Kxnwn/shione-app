@@ -1,6 +1,8 @@
 import { JournalRepository } from "@/repositories/journal.repositories";
 import { Journal, NewJournal } from "@/types/journal";
 import { notifyLocalDataChanged } from "@/services/local-data-events";
+import { getToken } from "./storage/auth.storage";
+import api from "@/api/api";
 
 export class JournalService {
     private repository = new JournalRepository();
@@ -30,6 +32,10 @@ export class JournalService {
 
     async getLatestJournal(): Promise<Journal | null> {
         return await this.repository.getLatestJournal();
+    }
+
+    async getAllJournals(): Promise<Journal[]> {
+        return await this.repository.getAllJournals();
     }
 
     async updateJournal(id: number, title: string, content: string) {
@@ -68,4 +74,39 @@ export class JournalService {
     async getJournalById(id: number) {
         return await this.repository.getJournalById(id);
     }
+
+    async syncJournalsFromServer() {
+    const token = await getToken();
+
+    console.log("📒 Fetching journals from backend...");
+
+    const response = await api.get("/journals", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    console.log("📒 Backend Response", response.data);
+
+    const journals: Journal[] = response.data.journals.map((j: any) => ({
+        id: j.id,
+        title: j.title,
+        content: j.content,
+        created_at: j.createdAt,
+        updated_at: j.updatedAt ?? j.createdAt,
+        isSynced: true,
+    }));
+
+    console.log("📒 Downloaded", journals.length, "journals");
+
+    await this.repository.replaceAllJournals(journals);
+
+    console.log("✅ Saved journals to SQLite");
+
+    const localJournals = await this.repository.getAllJournals();
+
+    console.log("📱 SQLite now has", localJournals.length, "journals");
+
+    return localJournals;
+}
 }

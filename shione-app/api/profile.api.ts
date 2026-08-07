@@ -191,7 +191,7 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 
 export const getStreak = async () => {
     const token = await getToken();
-
+ 
     try {
         const response = await api.get("/users/streak", {
             headers: {

@@ -18,6 +18,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { loginUser } from "@/services/authServices/auth.service";
 import { getToken, saveToken } from "@/services/storage/auth.storage";
+import { JournalService } from "@/services/journal.service";
+import { MoodService } from "@/services/mood.service";
+import { VerseService } from "@/services/verse.service"
+import { StreakService } from "@/services/streak.service";
 
 const { width } = Dimensions.get("window");
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,6 +38,10 @@ export default function LoginScreen() {
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
+    const journalService = new JournalService();
+    const moodService = new MoodService()
+    const verseService = new VerseService()
+    const streakService = new StreakService()
 
     useEffect(() => {
         Animated.parallel([
@@ -70,6 +78,54 @@ export default function LoginScreen() {
             await saveToken(result.token);
             const token = await getToken();
             console.log(token)
+
+            // ===== Restore Mood =====
+const localMood = await moodService.getTodayMood();
+
+console.log("LOCAL SQLite Mood:", localMood);
+
+if (!localMood) {
+    console.log("SQLite Mood is Empty. Syncing from server...");
+
+    await moodService.syncMoodsFromServer();
+
+    const syncedMood = await moodService.getTodayMood();
+
+    console.log("Mood after sync:", syncedMood);
+}
+
+// ===== Restore Journal =====
+const localJournal = await journalService.getLatestJournal();
+
+console.log("LOCAL SQLite Journal:", localJournal);
+
+if (!localJournal) {
+    console.log("SQLite Journal is Empty. Syncing from server...");
+
+    await journalService.syncJournalsFromServer();
+
+    const syncedJournal = await journalService.getLatestJournal();
+
+    console.log("Journal after sync:", syncedJournal);
+}
+
+// ===== Restore Verse =====
+const localVerse = await verseService.getActiveVerse();
+
+console.log("LOCAL SQLite Verse:", localVerse);
+
+if (!localVerse) {
+    console.log("SQLite Verse is Empty. Downloading today's verse...");
+
+    await verseService.getActiveVerse(); // or whatever your function is called
+
+    const syncedVerse = await verseService.getActiveVerse();
+
+    console.log("Verse after sync:", syncedVerse);
+}
+
+await streakService.syncStreakFromServer();
+
             
 
             router.replace("/(tabs)");

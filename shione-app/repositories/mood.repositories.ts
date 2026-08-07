@@ -57,5 +57,25 @@ export class MoodRepository {
         ORDER BY created_at DESC
     `);
     return moods;
+   
 }
+
+    async replaceAllMoods(moods: Mood[]) {
+        db.execSync(`
+            DELETE FROM moods`)
+
+        const statement = db.prepareSync(`
+                INSERT INTO moods(id, mood, category, note, created_at, updated_at, isSynced) VALUES(?, ?, ?, ?, ?, ?, ?)
+            `);
+
+        try {
+            for (const mood of moods) {
+                statement.executeSync([mood.id, mood.mood, mood.category, mood.note || null, mood.created_at, mood.updated_at, mood.isSynced ? 1 : 0]);
+            }
+        } finally {
+            statement.finalizeSync()
+        }
+
+    }
+
 }

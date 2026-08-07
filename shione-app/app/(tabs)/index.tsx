@@ -29,6 +29,7 @@ import { Mood } from "@/types/mood";
 import { Journal } from "@/types/journal";
 import { Verse } from "@/types/verse";
 import { MoodAnalytics } from "@/types/analytics";
+import { StreakService } from "@/services/streak.service";
 
 const { width } = Dimensions.get("window");
 
@@ -129,7 +130,7 @@ export default function HomeScreen() {
     const [cachedVerse, setCachedVerse] = useState<Verse | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [streak, setStreak] = useState(0);
+    const [streakData, setStreakData] = useState(0);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
     const moodService = new MoodService();
     const journalService = new JournalService();
@@ -158,52 +159,116 @@ export default function HomeScreen() {
         });
     }, [animValues]);
 
+    const streakService = new StreakService();
+
     const loadData = async (isRefresh = false) => {
-        if (!isRefresh) setLoading(true);
+
+    if (!isRefresh) setLoading(true);
+
+    try {
+
+        
+
+const [
+    homeResponse,
+    streak,
+    mood,
+    journal,
+    verse
+] = await Promise.all([
+    getHomeData().catch(() => null),
+    streakService.getStreak(),
+    moodService.getTodayMood(),
+    journalService.getLatestJournal(),
+    verseService.getActiveVerse(),
+]);
+
+
+
+        if (homeResponse) {
+
+            setHomeData(homeResponse);
+
+        } else {
+
+            const profileData = await getProfile();
+
+            setHomeData({
+                user: profileData.getProfile,
+                mood: null,
+                journal: null,
+                verse: null,
+            });
+
+        }
+
+
+
+        // ✅ Fixed streak
+        setStreakData(streak?.streak ?? 0);
+
+        console.log(
+            "Home Streak Data:",
+            streak
+        );
+
+
+
+        setTodayMood(mood);
+
+        setLatestJournal(journal);
+
+
+
+        if (verse) {
+
+            setCachedVerse(verse);
+
+        }
+
+
+
+        setTimeout(
+            animateEntry,
+            50
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load:",
+            error
+        );
+
 
         try {
-            const [homeResponse, streakData, mood, journal, verse] = await Promise.all([
-                getHomeData().catch(() => null),
-                getStreak(),
-                moodService.getTodayMood(),
-                journalService.getLatestJournal(),
-                verseService.getActiveVerse(),
-            ]);
 
-            if (homeResponse) {
-                setHomeData(homeResponse);
-            } else {
-                const profileData = await getProfile();
-                setHomeData({
-                    user: profileData.getProfile,
-                    mood: null,
-                    journal: null,
-                    verse: null,
-                });
+            const offlineVerse =
+                await verseService.getActiveVerse();
+
+
+            if (offlineVerse) {
+
+                setCachedVerse(offlineVerse);
+
             }
 
-            setStreak(streakData?.streak ?? 0);
-            setTodayMood(mood);
-            setLatestJournal(journal);
+        } catch (e) {
 
-            if (verse) {
-                setCachedVerse(verse);
-            }
+            // ignore
 
-            setTimeout(animateEntry, 50);
-        } catch (error) {
-            console.error("Failed to load:", error);
-            try {
-                const offlineVerse = await verseService.getActiveVerse();
-                if (offlineVerse) setCachedVerse(offlineVerse);
-            } catch (e) {
-                // ignore
-            }
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
         }
-    };
+
+
+    } finally {
+
+        setLoading(false);
+
+        setRefreshing(false);
+
+    }
+};
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -232,7 +297,7 @@ export default function HomeScreen() {
     }
 
 
-    const hasMood = !!homeData?.mood?.mood;
+    const hasMood = todayMood !== null;
 
     return (
         <SafeAreaView className="flex-1 bg-[#FBF7FF]">
@@ -296,7 +361,7 @@ export default function HomeScreen() {
                         <StatPill
                             icon="🔥"
                             label="Day Streak"
-                            value={streak}
+                            value={streakData}
                             color="#F97316"
                             delay={100}
                         />

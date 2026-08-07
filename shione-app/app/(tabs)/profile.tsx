@@ -23,6 +23,7 @@ import { removeToken } from "@/services/storage/auth.storage";
 import { removeOnboarding } from "@/services/storage/onboarding.storage";
 import { changePassword, getProfile, getStreak, updateProfile } from "@/api/profile.api";
 import { subscribeToLocalDataChanges } from "@/services/local-data-events";
+import { DatabaseResetService } from "@/services/database-reset.service";
 
 interface ProfileData {
     getProfile: {
@@ -169,6 +170,7 @@ export default function ProfileScreen() {
     const getStreakData = async () => {
         try {
             const data = await getStreak();
+            console.log("Backend returned streak:", data);
             const streakValue =
                 typeof data === "number" ? data : data?.streak ?? data?.currentStreak ?? 0;
             setStreak(streakValue);
@@ -211,9 +213,13 @@ export default function ProfileScreen() {
                 style: "destructive",
                 onPress: async () => {
                     try {
+                        const resetDatabase = new DatabaseResetService();
+                        await resetDatabase.clearAll();
                         await removeToken();
                         await removeOnboarding();
+                        console.log("Database Cleared Successfully!")
                         router.replace("/(auth)/login");
+                        
                     } catch (error) {
                         console.log("Logout error:", error);
                     }

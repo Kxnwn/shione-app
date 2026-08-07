@@ -38,7 +38,13 @@ export class SyncService {
             for (const mood of unsyncedMoods) {
                 try {
                     await saveMood(mood.mood, mood.note ?? "");
+                    console.log("✅ Uploaded Mood:", mood.id);
                     await this.moodService.markAsSynced(mood.id);
+                    const today = await this.moodService.getTodayMood();
+                    
+                    console.log(today)
+
+                    
                 } catch (error) {
                     console.warn("[Sync] Failed to sync mood", mood.id, error);
                 }

@@ -13,7 +13,7 @@ export class VerseService {
         Happy: 'GRATITUDE',
         Calm: 'PEACE',
         Sad: 'HOPE',
-        Anxiety: 'PEACE',
+        Anxious: 'PEACE',
         Angry: 'LOVE',
         Excited: 'JOY',
     };

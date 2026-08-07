@@ -11,15 +11,16 @@ import { SyncService } from '@/services/sync.service';
 
 export default function RootLayout() {
 
-//   useEffect(() => {
+//    useEffect(() => {
 
-//     const setupNotifications = async () => {
+//      const setupNotifications = async () => {
 //         await initializeNotifications();
-//         await scheduleDailyMoodReminder();
+//          await scheduleDailyMoodReminder();
 //     };
 
 //     setupNotifications();
-// }, []);
+
+//  }, []);
 
 useEffect(() => {
     initializeDatabase();

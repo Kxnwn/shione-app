@@ -72,4 +72,41 @@ export class JournalRepository {
         ORDER BY created_at DESC
     `);
 }
+
+    async replaceAllJournals(journals: Journal[]) {
+    // Clear existing local journals
+    db.execSync(`
+        DELETE FROM journals
+    `);
+
+    // Prepare insert statement
+    const statement = db.prepareSync(`
+        INSERT INTO journals(
+            id,
+            title,
+            content,
+            created_at,
+            updated_at,
+            isSynced
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    try {
+        for (const journal of journals) {
+            statement.executeSync([
+                journal.id,
+                journal.title,
+                journal.content,
+                journal.created_at,
+                journal.updated_at,
+                journal.isSynced ? 1 : 0,
+            ]);
+        }
+    } finally {
+        statement.finalizeSync();
+    }
+}
+
+    
 }
