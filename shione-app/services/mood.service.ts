@@ -4,6 +4,7 @@ import { notifyLocalDataChanged } from "@/services/local-data-events";
 import { getToken } from "./storage/auth.storage";
 import api from "@/api/api";
 import { StreakService } from "@/services/streak.service";
+import { saveMood } from "@/api/mood.api";
 
 
 
@@ -33,9 +34,13 @@ export class MoodService {
         const result = await this.repository.saveMood(newMood);
 
         await this.streakService.updateStreak();
+        await this.streakService.updateStreak();
 
         notifyLocalDataChanged("mood");
 
+        void this.syncUnsyncedMoods();
+        
+        console.log("✅SYNCED MOODS TO NEONDATABASE")
         return result;
     }
 
@@ -165,5 +170,24 @@ const moods: Mood[] = response.data.moods.map((m: any) => ({
         console.log("SqLite now has,",localMoods.length, "moods")
         console.log("Moods")
     }
+
+
+    async syncUnsyncedMoods() {
+    const moods = await this.repository.getUnsyncedMoods();
+
+    for (const mood of moods) {
+        try {
+            await saveMood(mood.mood, mood.note ?? "");
+
+            await this.repository.markAsSynced(mood.id);
+
+            notifyLocalDataChanged("mood");
+
+            console.log("✅ Mood synced immediately:", mood.id);
+        } catch (error) {
+            console.log("📴 Mood still offline:", mood.id);
+        }
+    }
+}
     
 }

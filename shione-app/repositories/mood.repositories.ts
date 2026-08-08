@@ -9,6 +9,7 @@ export class MoodRepository {
             INSERT INTO moods( mood, category, note, created_at, updated_at, isSynced) VALUES(?, ?, ?, ?, ?, ?)
         `,
             [mood.mood, mood.category, mood.note || null, mood.created_at, mood.updated_at, mood.isSynced ? 1 : 0]);
+            
         return saveMood;
     }
 

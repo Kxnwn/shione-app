@@ -3,6 +3,7 @@ import { Journal, NewJournal } from "@/types/journal";
 import { notifyLocalDataChanged } from "@/services/local-data-events";
 import { getToken } from "./storage/auth.storage";
 import api from "@/api/api";
+import { createJournal } from "@/api/journal.api";
 
 export class JournalService {
     private repository = new JournalRepository();
@@ -19,6 +20,9 @@ export class JournalService {
         const result = await this.repository.saveJournal(newJournal);
         notifyLocalDataChanged("journal");
         console.log("✅ [JournalService] Journal successfully saved in SQLite database!");
+
+        void this.syncUnsyncedJournals();
+        console.log("✅SYNCED JOURNALS TO NEONDATABASE")
         return result;
     }
 
@@ -108,5 +112,26 @@ export class JournalService {
     console.log("📱 SQLite now has", localJournals.length, "journals");
 
     return localJournals;
+}
+
+    async syncUnsyncedJournals() {
+    const journals = await this.repository.getUnsyncedJournals();
+
+    for (const journal of journals) {
+        try {
+            await createJournal(
+                journal.title,
+                journal.content ?? ""
+            );
+
+            await this.repository.markAsSynced(journal.id);
+
+            notifyLocalDataChanged("journal");
+
+            console.log("✅ Journal synced immediately:", journal.id);
+        } catch (error) {
+            console.log("📴 Journal still offline:", journal.id);
+        }
+    }
 }
 }

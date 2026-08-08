@@ -127,7 +127,12 @@ if (!localVerse) {
 await streakService.syncStreakFromServer();
 
             
+            const restoredStreak = await streakService.syncStreakFromServer();
 
+console.log(
+    "🔥 RESTORED STREAK:",
+    restoredStreak
+);
             router.replace("/(tabs)");
         } catch (error: any) {
             setError(error.response?.data?.message || "Something went wrong. Please try again.");

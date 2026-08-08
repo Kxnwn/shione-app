@@ -70,7 +70,7 @@ export class StreakService {
 
             ...streak,
 
-            streak: 0,
+            streak: 1,
 
 
             isSynced: false
@@ -88,14 +88,12 @@ export class StreakService {
 }
 
     async syncStreakFromServer() {
-
     const serverStreak = await getStreak();
 
     console.log(
         "Backend returned streak:",
         serverStreak
     );
-
 
     const streak: Streak = {
         id: 1,
@@ -106,14 +104,21 @@ export class StreakService {
         isSynced: true
     };
 
-
     console.log(
         "Saving synced streak:",
         streak
     );
 
-
     await this.repository.replaceStreak(streak);
+
+    const savedStreak = await this.repository.getStreak();
+
+    console.log(
+        "Saving synced streak:",
+        savedStreak
+    );
+
+    return savedStreak;
 }
 
 }
