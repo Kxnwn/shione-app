@@ -24,7 +24,7 @@ import { saveMood } from "@/api/mood.api";
 import { MoodService } from "@/services/mood.service";
 import { VerseService } from "@/services/verse.service";
 import { NewMood } from "@/types/mood";
-import { getRandomVerse } from "@/api/verse.api";
+import { getDailyVerse } from "@/api/verse.api";
 import { notifyLocalDataChanged } from "@/services/local-data-events";
 
 
@@ -113,7 +113,7 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                 const hasConnection = Boolean(state?.isConnected || state?.isInternetReachable);
 
                 if (category && hasConnection) {
-                    const verse = await getRandomVerse(category);
+                    const verse = await getDailyVerse(category);
 
                     if (verse) {
                         await verseService.cacheVerseFromApi(verse);

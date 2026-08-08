@@ -33,8 +33,7 @@ export class MoodService {
     };
         const result = await this.repository.saveMood(newMood);
 
-        await this.streakService.updateStreak();
-        await this.streakService.updateStreak();
+        
 
         notifyLocalDataChanged("mood");
 
@@ -177,15 +176,49 @@ const moods: Mood[] = response.data.moods.map((m: any) => ({
 
     for (const mood of moods) {
         try {
-            await saveMood(mood.mood, mood.note ?? "");
+            // 1. Send mood to backend
+            await saveMood(
+                mood.mood,
+                mood.note ?? ""
+            );
 
+            // 2. Mark local mood as synced
             await this.repository.markAsSynced(mood.id);
 
             notifyLocalDataChanged("mood");
 
-            console.log("✅ Mood synced immediately:", mood.id);
+            console.log(
+                "✅ Mood synced immediately:",
+                mood.id
+            );
+
+            // 3. 🔥 Backend is now the source of truth
+            await this.streakService.syncStreakFromServer();
+
+            console.log(
+                "🔥 Streak restored from backend after mood sync"
+            );
+
         } catch (error) {
-            console.log("📴 Mood still offline:", mood.id);
+            console.log(
+                "📴 Mood still offline:",
+                mood.id
+            );
+
+            // 4. Only calculate locally if we're actually offline
+            try {
+                await this.streakService.updateStreak();
+
+                console.log(
+                    "🔥 Offline streak updated"
+                );
+
+            } catch (streakError) {
+                console.warn(
+                    "⚠️ Offline streak update failed:",
+                    streakError
+                );
+            }
         }
     }
 }

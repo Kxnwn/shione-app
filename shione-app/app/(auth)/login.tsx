@@ -125,6 +125,7 @@ if (!localVerse) {
 }
 
 await streakService.syncStreakFromServer();
+await verseService.syncVerseFromServer();
 
             
             const restoredStreak = await streakService.syncStreakFromServer();

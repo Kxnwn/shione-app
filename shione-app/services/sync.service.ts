@@ -5,7 +5,8 @@ import { VerseService } from "./verse.service";
 import { getProfile, getStreak } from "@/api/profile.api";
 import { saveMood } from "@/api/mood.api";
 import { createJournal } from "@/api/journal.api";
-import { getRandomVerse } from "@/api/verse.api";
+import { getDailyVerse } from "@/api/verse.api";
+import { StreakService } from "./streak.service";
 
 export class SyncService {
     private moodService = new MoodService();
@@ -14,60 +15,101 @@ export class SyncService {
     private isSyncing = false;
 
     async startAutoSync() {
-        const unsubscribe = NetInfo.addEventListener((state) => {
-            if (state.isConnected || state.isInternetReachable) {
-                void this.syncAll();
-            }
-        });
-
-        const initialState = await NetInfo.fetch();
-        if (initialState.isConnected || initialState.isInternetReachable) {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+        if (
+            state.isConnected ||
+            state.isInternetReachable
+        ) {
             void this.syncAll();
         }
+    });
 
-        return unsubscribe;
+    const initialState = await NetInfo.fetch();
+
+    if (
+        initialState.isConnected ||
+        initialState.isInternetReachable
+    ) {
+        console.log("🔄 Initial sync starting...");
+
+        await this.syncAll();
+
+        console.log("✅ Initial sync finished");
     }
+
+    return unsubscribe;
+}
 
     async syncAll() {
-        if (this.isSyncing) return;
+    if (this.isSyncing) return;
 
-        this.isSyncing = true;
+    this.isSyncing = true;
 
-        try {
-            const unsyncedMoods = await this.moodService.getUnsyncedMoods();
-            for (const mood of unsyncedMoods) {
-                try {
-                    await saveMood(mood.mood, mood.note ?? "");
-                    console.log("✅ Uploaded Mood:", mood.id);
-                    await this.moodService.markAsSynced(mood.id);
-                    const today = await this.moodService.getTodayMood();
-                    
-                    console.log(today)
+    try {
+        // Sync moods
+        const unsyncedMoods =
+            await this.moodService.getUnsyncedMoods();
 
-                    
-                } catch (error) {
-                    console.warn("[Sync] Failed to sync mood", mood.id, error);
-                }
+        for (const mood of unsyncedMoods) {
+            try {
+                await saveMood(
+                    mood.mood,
+                    mood.note ?? ""
+                );
+
+                await this.moodService.markAsSynced(mood.id);
+
+            } catch (error) {
+                console.warn(
+                    "[Sync] Failed to sync mood",
+                    mood.id,
+                    error
+                );
             }
-
-            const unsyncedJournals = await this.journalService.getUnsyncedJournals();
-            for (const journal of unsyncedJournals) {
-                try {
-                    await createJournal(journal.title, journal.content ?? "");
-                    await this.journalService.markAsSynced(journal.id);
-                } catch (error) {
-                    console.warn("[Sync] Failed to sync journal", journal.id, error);
-                }
-            }
-
-            await this.syncProfile();
-            await this.syncVerseCache();
-        } catch (error) {
-            console.warn("[Sync] Sync failed", error);
-        } finally {
-            this.isSyncing = false;
         }
+
+        // Sync journals
+        const unsyncedJournals =
+            await this.journalService.getUnsyncedJournals();
+
+        for (const journal of unsyncedJournals) {
+            try {
+                await createJournal(
+                    journal.title,
+                    journal.content ?? ""
+                );
+
+                await this.journalService.markAsSynced(journal.id);
+
+            } catch (error) {
+                console.warn(
+                    "[Sync] Failed to sync journal",
+                    journal.id,
+                    error
+                );
+            }
+        }
+
+        // 🔥 RESTORE STREAK
+        try {
+            await this.streakService.syncStreakFromServer();
+        } catch (error) {
+            console.warn(
+                "[Sync] Failed to restore streak",
+                error
+            );
+        }
+
+        await this.syncProfile();
+        await this.syncVerseCache();
+
+    } catch (error) {
+        console.warn("[Sync] Sync failed", error);
+
+    } finally {
+        this.isSyncing = false;
     }
+}
 
     private async syncProfile() {
         try {
@@ -80,7 +122,7 @@ export class SyncService {
 
     private async syncVerseCache() {
         try {
-            const verse = await getRandomVerse("PEACE");
+            const verse = await getDailyVerse("PEACE");
             if (verse) {
                 await this.verseService.cacheVerseFromApi(verse);
             }
@@ -88,4 +130,6 @@ export class SyncService {
             console.warn("[Sync] Verse cache sync skipped", error);
         }
     }
+
+    private streakService = new StreakService();
 }

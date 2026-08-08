@@ -30,6 +30,7 @@ import { Journal } from "@/types/journal";
 import { Verse } from "@/types/verse";
 import { MoodAnalytics } from "@/types/analytics";
 import { StreakService } from "@/services/streak.service";
+import { SyncService } from "@/services/sync.service";
 
 const { width } = Dimensions.get("window");
 
@@ -269,15 +270,35 @@ const [
 
     }
 };
+const syncService = new SyncService();
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         loadData(true);
     }, []);
 
-    useEffect(() => {
-        loadData();
-    }, []);
+   useEffect(() => {
+    const initializeHome = async () => {
+        try {
+            console.log("🔄 Initial app sync...");
+
+            await syncService.syncAll();
+
+            console.log("✅ Initial sync complete");
+
+        } catch (error) {
+            console.warn(
+                "⚠️ Initial sync failed:",
+                error
+            );
+        }
+
+        // NOW load SQLite data
+        await loadData();
+    };
+
+    initializeHome();
+}, []);
 
     const today = new Date().toLocaleDateString("en-US", {
         weekday: "long",

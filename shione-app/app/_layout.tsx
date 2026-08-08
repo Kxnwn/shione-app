@@ -23,10 +23,37 @@ export default function RootLayout() {
 //  }, []);
 
 useEffect(() => {
-    initializeDatabase();
+    let unsubscribe: (() => void) | undefined;
 
-    const syncService = new SyncService();
-    void syncService.startAutoSync();
+    const initializeApp = async () => {
+        try {
+            console.log("📦 Initializing database...");
+
+            await initializeDatabase();
+
+            console.log("✅ Database initialized");
+
+            const syncService = new SyncService();
+
+            console.log("🔄 Running initial sync...");
+
+            unsubscribe = await syncService.startAutoSync();
+
+            console.log("✅ Initial sync started");
+
+        } catch (error) {
+            console.error(
+                "❌ App initialization failed:",
+                error
+            );
+        }
+    };
+
+    void initializeApp();
+
+    return () => {
+        unsubscribe?.();
+    };
 }, []);
 
 

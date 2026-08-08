@@ -191,7 +191,7 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 
 export const getStreak = async () => {
     const token = await getToken();
- 
+
     try {
         const response = await api.get("/users/streak", {
             headers: {
@@ -203,8 +203,18 @@ export const getStreak = async () => {
     } catch (error) {
         const moodRepository = new MoodRepository();
         const moods = await moodRepository.getAllMoods();
+
         const offlineStreak = calculateOfflineStreak(moods);
-        return { streak: offlineStreak };
+
+        // Keep the same shape as the backend response
+        const latestMood = moods[0];
+
+        return {
+            streak: offlineStreak,
+            lastActivityDate: latestMood
+                ? latestMood.created_at.split("T")[0]
+                : null,
+        };
     }
 };
 

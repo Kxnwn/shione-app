@@ -96,13 +96,11 @@ export class StreakService {
     );
 
     const streak: Streak = {
-        id: 1,
-        streak: serverStreak.streak,
-        lastUpdated: new Date()
-            .toISOString()
-            .split("T")[0],
-        isSynced: true
-    };
+    id: 1,
+    streak: serverStreak.streak,
+    lastUpdated: serverStreak.lastActivityDate ?? "",
+    isSynced: true
+};
 
     console.log(
         "Saving synced streak:",

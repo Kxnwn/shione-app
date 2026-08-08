@@ -1,5 +1,6 @@
 import { VerseRepository } from '@/repositories/verse.repositories';
 import { Verse } from '@/types/verse';
+import { getDailyVerse } from "@/api/verse.api";
 
 
 export class VerseService {
@@ -54,4 +55,41 @@ export class VerseService {
         console.log('🎭 [VerseService] Mood verse result:', verse ? `"${verse.reference}"` : 'NONE');
         return verse;
     }
+
+    async syncVerseFromServer(): Promise<Verse | null> {
+    console.log("🌐 [VerseService] Syncing daily verse...");
+
+    try {
+        const verse = await getDailyVerse("PEACE");
+
+        if (!verse) {
+            console.log("⚠️ No daily verse received");
+            return null;
+        }
+
+        console.log(
+            "📥 Daily verse downloaded:",
+            verse.reference
+        );
+
+        await this.cacheVerseFromApi(verse);
+
+        const savedVerse = await this.getActiveVerse();
+
+        console.log(
+            "🔥 Daily verse after sync:",
+            savedVerse
+        );
+
+        return savedVerse;
+
+    } catch (error) {
+        console.warn(
+            "❌ Daily verse sync failed:",
+            error
+        );
+
+        return null;
+    }
+}
 }

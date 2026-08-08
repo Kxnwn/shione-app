@@ -41,6 +41,7 @@ export class StreakRepository {
         `, [
             streak.id,
             streak.streak,
+            streak.lastUpdated,
             streak.isSynced ? 1 : 0
         ]);
         console.log("Saving streak to SQLite:", streak);
