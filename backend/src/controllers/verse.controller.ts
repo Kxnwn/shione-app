@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { VerseCategory } from "@prisma/client";
-import { getRandomVerseByCategory } from "../services/verse.service.js";
+import { getDailyVerseByCategory } from "../services/verse.service.js";
 
 interface VerseParams {
     category: string;
 }
 
-export const getVerseByCategory = async (
+export const getDailyVerse = async (
     req: Request<VerseParams>,
     res: Response
 ) => {
@@ -20,7 +20,7 @@ export const getVerseByCategory = async (
             });
         }
 
-        const verse = await getRandomVerseByCategory(
+        const verse = await getDailyVerseByCategory(
             category as VerseCategory
         );
 

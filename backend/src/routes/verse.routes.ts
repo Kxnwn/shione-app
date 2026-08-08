@@ -1,10 +1,10 @@
 
 import express from "express";
-import { getVerseByCategory } from "../controllers/verse.controller.js";
+import { getDailyVerse } from "../controllers/verse.controller.js";
 
 const router = express.Router();
 
-router.get("/random/:category", getVerseByCategory);
+router.get("/daily", getDailyVerse);
 
 export default router;
 
