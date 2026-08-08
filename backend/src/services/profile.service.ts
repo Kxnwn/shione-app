@@ -84,7 +84,10 @@ export const getStreakService = async (userId: number) => {
     }
 
     return {
-        streak
+        streak,
+        lastActivityDate: lastCountedDate
+        ? lastCountedDate.toISOString().split("T")[0]
+        : null
     };
 };
 
