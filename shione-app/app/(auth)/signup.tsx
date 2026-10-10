@@ -142,22 +142,31 @@ export default function SignupScreen() {
                         animate={{ opacity: 1, translateY: 0 }}
                         transition={{ type: "spring", duration: 800, delay: 200 }}
                     >
-                        <BlurView
-                            intensity={70}
-                            tint="light"
-                            className="rounded-3xl overflow-hidden border border-white/50"
-                            style={{
-                                shadowColor: "#8854C0",
-                                shadowOffset: { width: 0, height: 8 },
-                                shadowOpacity: 0.1,
-                                shadowRadius: 24,
-                                elevation: 8,
-                            }}
-                        >
+                       
+<BlurView
+    intensity={70}
+    tint="light"
+    style={{
+        borderRadius: 24,
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.5)",
+        backgroundColor: "#FFFFFF",
+        shadowColor: "#8854C0",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 24,
+        elevation: 8,
+    }}
+>
+
                             <LinearGradient
-                                colors={["rgba(255,255,255,0.95)", "rgba(255,255,255,0.85)"]}
-                                className="p-6 gap-5"
-                            >
+    colors={["#FFFFFF", "#FAF8FD"]}
+    style={{
+        padding: 24,
+        gap: 20,
+    }}
+>
                                 {/* Global Error */}
                                 {error ? (
                                     <MotiView

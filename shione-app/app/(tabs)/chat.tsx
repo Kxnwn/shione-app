@@ -6,7 +6,7 @@ import { sendChat, chatHistory } from '@/api/chat.api';
 import ChatBubble from '@/components/Chat/ChatBubble';
 import { ChatMessage } from '@/types/chat';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useBottomTabBarHeight } from "expo-router/js-tabs";
 
 const BOTTOM_THRESHOLD = 80;
 

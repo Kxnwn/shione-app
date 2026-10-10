@@ -18,7 +18,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "expo-router/react-navigation";
 import { removeToken } from "@/services/storage/auth.storage";
 import { removeOnboarding } from "@/services/storage/onboarding.storage";
 import { changePassword, getProfile, getStreak, updateProfile } from "@/api/profile.api";

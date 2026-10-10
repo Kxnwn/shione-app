@@ -189,18 +189,20 @@ const MoodBottomSheet = forwardRef<BottomSheetModal, MoodBottomSheetProps>(
                     paddingTop: 12,
                 }}
                 backgroundStyle={{
-                    backgroundColor: "transparent",
-                }}
+    backgroundColor: "#FAFAFC",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+}}
             >
                 <BlurView
                     intensity={80}
                     tint="light"
                     className="flex-1"
                 >
-                    <LinearGradient
-                        colors={["rgba(255,255,255,0.95)", "rgba(250,250,252,0.98)"]}
-                        className="flex-1"
-                    >
+       <LinearGradient
+    colors={["#FFFFFF", "#FAFAFC"]}
+    style={{ flex: 1 }}
+>
                         <BottomSheetView
                             style={{
                                 flex: 1,

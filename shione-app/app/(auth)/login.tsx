@@ -196,21 +196,25 @@ console.log(
                         animate={{ opacity: 1, translateY: 0 }}
                         transition={{ type: "spring", duration: 800, delay: 200 }}
                     >
-                        <BlurView
-                            intensity={70}
-                            tint="light"
-                            className="rounded-3xl overflow-hidden border border-white/50"
-                            style={{
-                                shadowColor: "#8854C0",
-                                shadowOffset: { width: 0, height: 8 },
-                                shadowOpacity: 0.1,
-                                shadowRadius: 24,
-                                elevation: 8,
-                            }}
-                        >
+                       <BlurView
+    intensity={70}
+    tint="light"
+    style={{
+        borderRadius: 24,
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.5)",
+        backgroundColor: "#FFFFFF",
+        shadowColor: "#8854C0",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 24,
+        elevation: 8,
+    }}
+>
                             <LinearGradient
                                 colors={["rgba(255,255,255,0.95)", "rgba(255,255,255,0.85)"]}
-                                className="p-6 gap-5"
+                                style={{ padding: 20 }}
                             >
                                 {/* Global Error */}
                                 {error ? (
@@ -232,7 +236,7 @@ console.log(
                                         Email Address
                                     </Text>
                                     <View
-                                        className="flex-row items-center rounded-2xl border bg-neutral-50/50 overflow-hidden"
+                                        className="flex-row mb-5 items-center rounded-2xl border bg-neutral-50/50 overflow-hidden"
                                         style={{
                                             borderColor: emailError
                                                 ? "#FCA5A5"
@@ -281,6 +285,7 @@ console.log(
                                     <View
                                         className="flex-row items-center rounded-2xl border bg-neutral-50/50 overflow-hidden"
                                         style={{
+                                            marginBottom: 10,
                                             borderColor: passwordError
                                                 ? "#FCA5A5"
                                                 : focusedField === "password"
@@ -332,7 +337,7 @@ console.log(
 
                                 {/* Forgot Password */}
                                 <TouchableOpacity
-                                    className="self-end -mt-1"
+                                    className="self-end -mt-1 mb-4"
                                     activeOpacity={0.7}
                                 >
                                     <Text className="text-[#8854C0] text-sm font-semibold">

@@ -36,21 +36,29 @@ export default function MoodCard({ mood, note, onPress }: MoodCardProps) {
             style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
             className="mx-5 my-3"
         >
-            <BlurView intensity={70} tint="light" className="rounded-3xl overflow-hidden border border-white/40"
-                style={{
-                    shadowColor: meta?.color || "#8854C0",
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.12,
-                    shadowRadius: 24,
-                    elevation: 6,
-                }}
-            >
-                {/* Colored Top Accent Bar */}
-                {meta && (
-                    <View style={{ height: 4, backgroundColor: meta.color, opacity: 0.6 }} />
-                )}
+           <BlurView
+    intensity={70}
+    tint="light"
+    style={{
+        borderRadius: 24,
+        overflow: "hidden",
+        
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.6)",
+        backgroundColor: "#FFFFFF",
+        shadowColor: meta?.color || "#8854C0",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 24,
+        elevation: 6,
+    }}
+>
+               
 
-                <LinearGradient colors={["rgba(255,255,255,0.95)", "rgba(255,255,255,0.85)"]} className="p-5">
+                <LinearGradient
+                 colors={["#FFFFFF", "#FAF8FD"]}
+                style={{ padding: 20 }}
+                >
                     {/* Header */}
                     <View className="flex-row items-center justify-between mb-4">
                         <View className="flex-row items-center gap-2">

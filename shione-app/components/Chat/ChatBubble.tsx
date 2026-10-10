@@ -52,6 +52,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
               elevation: 3,
               borderRadius: 18,
               borderBottomRightRadius: 6,
+              padding: 13,
             }}
           >
             <Text className="text-white text-[15px] leading-5">
