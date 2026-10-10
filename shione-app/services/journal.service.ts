@@ -3,12 +3,20 @@ import { Journal, NewJournal } from "@/types/journal";
 import { notifyLocalDataChanged } from "@/services/local-data-events";
 import { getToken } from "./storage/auth.storage";
 import api from "@/api/api";
-import { createJournal } from "@/api/journal.api";
+import {
+    createJournal,
+    deleteJournal as deleteJournalApi
+} from "@/api/journal.api";
 
 export class JournalService {
+
     private repository = new JournalRepository();
 
-    async saveJournal(title: string, content: string) {
+    async saveJournal(
+        title: string,
+        content: string
+    ) {
+
         const newJournal: NewJournal = {
             title,
             content,
@@ -16,18 +24,31 @@ export class JournalService {
             updated_at: new Date().toISOString(),
             isSynced: false,
         };
-        console.log("📝 [JournalService] Saving new journal locally to SQLite...", newJournal);
-        const result = await this.repository.saveJournal(newJournal);
-        notifyLocalDataChanged("journal");
-        console.log("✅ [JournalService] Journal successfully saved in SQLite database!");
 
+        console.log(
+            "📝 Saving journal locally..."
+        );
+
+        const result =
+            await this.repository.saveJournal(newJournal);
+
+        notifyLocalDataChanged("journal");
+
+        // Try to sync immediately.
+        // If offline, SyncService will handle it later.
         void this.syncUnsyncedJournals();
-        console.log("✅SYNCED JOURNALS TO NEONDATABASE")
+
         return result;
     }
 
-    async createJournal(title: string, content: string) {
-        return await this.saveJournal(title, content);
+    async createJournal(
+        title: string,
+        content: string
+    ) {
+        return await this.saveJournal(
+            title,
+            content
+        );
     }
 
     async getJournals(): Promise<Journal[]> {
@@ -42,10 +63,19 @@ export class JournalService {
         return await this.repository.getAllJournals();
     }
 
-    async updateJournal(id: number, title: string, content: string) {
-        const existingJournal = await this.repository.getJournalById(id);
+    async updateJournal(
+        id: number,
+        title: string,
+        content: string
+    ) {
+
+        const existingJournal =
+            await this.repository.getJournalById(id);
+
         if (!existingJournal) {
-            throw new Error(`Journal with id ${id} not found`);
+            throw new Error(
+                `Journal with id ${id} not found`
+            );
         }
 
         const updatedJournal: Journal = {
@@ -54,25 +84,85 @@ export class JournalService {
             content,
             updated_at: new Date().toISOString(),
             isSynced: false,
+            isDeleted: false,
         };
 
-        const result = await this.repository.updateJournal(updatedJournal);
+        const result =
+            await this.repository.updateJournal(
+                updatedJournal
+            );
+
         notifyLocalDataChanged("journal");
+
         return result;
     }
 
     async deleteJournal(id: number) {
-        const result = await this.repository.deleteJournal(id);
+
+        const journal =
+            await this.repository.getJournalById(id);
+
+        if (!journal) {
+            throw new Error(
+                `Journal with id ${id} not found`
+            );
+        }
+
+        // If this journal has never been synced,
+        // there is nothing to delete from PostgreSQL.
+        //
+        // We can simply remove it locally.
+        if (!journal.serverId) {
+
+            console.log(
+                "🗑️ Deleting unsynced local journal..."
+            );
+
+            await this.repository.permanentlyDeleteJournal(
+                id
+            );
+
+            notifyLocalDataChanged("journal");
+
+            return;
+        }
+
+        // If it already exists on the server,
+        // mark it as deleted locally.
+        //
+        // DO NOT permanently remove it yet.
+        // We still need serverId for synchronization.
+        await this.repository.markAsDeleted(id);
+
         notifyLocalDataChanged("journal");
-        return result;
+
+        console.log(
+            `🗑️ Journal ${id} marked for server deletion`
+        );
     }
 
     async getUnsyncedJournals(): Promise<Journal[]> {
         return await this.repository.getUnsyncedJournals();
     }
 
-    async markAsSynced(id: number) {
-        return await this.repository.markAsSynced(id);
+    async getPendingDeletions(): Promise<Journal[]> {
+        return await this.repository.getPendingDeletions();
+    }
+
+    async markAsSynced(
+        id: number,
+        serverId?: number
+    ) {
+        return await this.repository.markAsSynced(
+            id,
+            serverId
+        );
+    }
+
+    async permanentlyDeleteJournal(id: number) {
+        return await this.repository.permanentlyDeleteJournal(
+            id
+        );
     }
 
     async getJournalById(id: number) {
@@ -80,58 +170,100 @@ export class JournalService {
     }
 
     async syncJournalsFromServer() {
-    const token = await getToken();
 
-    console.log("📒 Fetching journals from backend...");
+        const token = await getToken();
 
-    const response = await api.get("/journals", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+        console.log(
+            "📒 Fetching journals from backend..."
+        );
 
-    console.log("📒 Backend Response", response.data);
+        const response = await api.get(
+            "/journals",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
-    const journals: Journal[] = response.data.journals.map((j: any) => ({
-        id: j.id,
-        title: j.title,
-        content: j.content,
-        created_at: j.createdAt,
-        updated_at: j.updatedAt ?? j.createdAt,
-        isSynced: true,
-    }));
+        const serverJournals =
+            response.data.journals;
 
-    console.log("📒 Downloaded", journals.length, "journals");
+        const journals: Journal[] =
+            serverJournals.map((j: any) => ({
+                id: j.id,
+                serverId: j.id,
+                title: j.title,
+                content: j.content,
+                created_at: j.createdAt,
+                updated_at:
+                    j.updatedAt ?? j.createdAt,
+                isSynced: true,
+                isDeleted: false,
+            }));
 
-    await this.repository.replaceAllJournals(journals);
+        console.log(
+            "📒 Downloaded",
+            journals.length,
+            "journals"
+        );
 
-    console.log("✅ Saved journals to SQLite");
+        await this.repository.replaceAllJournals(
+            journals
+        );
 
-    const localJournals = await this.repository.getAllJournals();
+        const localJournals =
+            await this.repository.getAllJournals();
 
-    console.log("📱 SQLite now has", localJournals.length, "journals");
+        console.log(
+            "📱 SQLite now has",
+            localJournals.length,
+            "journals"
+        );
 
-    return localJournals;
-}
+        return localJournals;
+    }
 
     async syncUnsyncedJournals() {
-    const journals = await this.repository.getUnsyncedJournals();
 
-    for (const journal of journals) {
-        try {
-            await createJournal(
-                journal.title,
-                journal.content ?? ""
-            );
+        const journals =
+            await this.repository.getUnsyncedJournals();
 
-            await this.repository.markAsSynced(journal.id);
+        for (const journal of journals) {
 
-            notifyLocalDataChanged("journal");
+            try {
 
-            console.log("✅ Journal synced immediately:", journal.id);
-        } catch (error) {
-            console.log("📴 Journal still offline:", journal.id);
+                const serverJournal =
+                    await createJournal(
+                        journal.title,
+                        journal.content ?? ""
+                    );
+
+                // IMPORTANT:
+                // Save the PostgreSQL ID into SQLite.
+                await this.repository.markAsSynced(
+                    journal.id,
+                    serverJournal.id
+                );
+
+                notifyLocalDataChanged(
+                    "journal"
+                );
+
+                console.log(
+                    "✅ Journal synced:",
+                    journal.id,
+                    "→ server:",
+                    serverJournal.id
+                );
+
+            } catch (error) {
+
+                console.log(
+                    "📴 Journal still offline:",
+                    journal.id
+                );
+            }
         }
     }
-}
 }

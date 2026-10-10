@@ -8,5 +8,7 @@ export interface NewJournal {
 
 export interface Journal extends NewJournal {
     id: number;
+    serverId?: number;
+    isDeleted: boolean;
     createdAt?: string;
 }

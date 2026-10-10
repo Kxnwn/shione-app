@@ -49,10 +49,13 @@ export default function ChatScreen({}) {
 
       const history = await chatHistory();
       setMessages(history);
+
     } catch (error) {
-      console.log(error);
-      setIsOffline(true);
-    } finally {
+    console.log("❌ CHAT HISTORY ERROR:", error);
+
+    setMessages([]);
+} finally {
+      
       setIsLoadingHistory(false);
     }
   };
@@ -131,17 +134,18 @@ export default function ChatScreen({}) {
         { role: "ASSISTANT", message: aiReply, isNew: true },
       ]);
     } catch (error) {
-      console.log(error);
-      setIsOffline(true);
-      setMessages((prev) => [
+    console.log("❌ SEND CHAT ERROR:", error);
+
+    setMessages((prev) => [
         ...prev,
         {
-          role: "ASSISTANT",
-          message: "I can’t reply right now because the connection dropped. Please check your internet and try again. 🌐",
-          isNew: true,
+            role: "ASSISTANT",
+            message:
+                "I couldn't reply right now. Please try sending your message again.",
+            isNew: true,
         },
-      ]);
-    } finally {
+    ]);
+} finally {
       setIsThinking(false);
     }
   };
