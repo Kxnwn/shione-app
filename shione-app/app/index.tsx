@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { getToken, removeToken } from '@/services/storage/auth.storage';
 import { getOnboarding } from '@/services/storage/onboarding.storage';
 import { getProfile } from '@/api/profile.api';
+import { Image } from 'expo-image';
 
 const isValidAuthenticatedProfile = (profile: any) => {
     const profileName = profile?.getProfile?.name;
@@ -112,7 +113,8 @@ export default function SplashScreen() {
                         loop: true 
                     }}
                 >
-                    <Text className="text-8xl">🌸</Text>
+                     <Image
+                        source={require('../assets/images/afterSplash.png')}/>
                 </MotiView>
             </MotiView>
 

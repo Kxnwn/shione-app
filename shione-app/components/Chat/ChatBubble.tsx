@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ChatMessage } from "@/types/chat";
 import ThinkingBubble from "./ThinkingBubble";
 import TypewriterText from "./Typewriter";
+import { Image } from "expo-image";
 
 interface ChatBubbleProps {
   message: ChatMessage;
@@ -35,8 +36,11 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
 
       <View className="flex-row items-end gap-2 max-w-[85%]">
         {!isUser && (
-          <View className="w-7 h-7 rounded-full bg-[#8854C0]/10 items-center justify-center mb-1 border border-[#8854C0]/10">
-            <Text className="text-sm">🌸</Text>
+          <View className="items-center justify-center mb-1">
+            <Image
+              source={require('@/assets/images/afterSplash.png')}
+              style={{ width: 30, height: 30 }}
+            />
           </View>
         )}
 

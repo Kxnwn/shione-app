@@ -1,10 +1,21 @@
-import { View, Text } from "react-native";
+
+import { View, Text, Image } from "react-native";
 
 type GreetingProps = {
     name: string;
+    mood?: string | null;
 };
 
-export default function Greeting({ name }: GreetingProps) {
+const shioneExpressions = {
+    happy: require("@/assets/ShioneEmojies/shioneHappy.png"),
+    sad: require("@/assets/ShioneEmojies/shioneSad.png"),
+    angry: require("@/assets/ShioneEmojies/shioneAngry.png"),
+    anxious: require("@/assets/ShioneEmojies/shioneAnxious.png"),
+    calm: require("@/assets/ShioneEmojies/shioneCalm.png"),
+    excited: require("@/assets/ShioneEmojies/shioneExcited.png"),
+};
+
+export default function Greeting({ name, mood }: GreetingProps) {
     const hour = new Date().getHours();
 
     let greeting = "";
@@ -21,14 +32,36 @@ export default function Greeting({ name }: GreetingProps) {
         message = "Time to slow down and reflect.";
     }
 
+    const moodKey = mood?.trim().toLowerCase() ?? "happy";
+
+    const shioneImage =
+        shioneExpressions[
+            moodKey as keyof typeof shioneExpressions
+        ] ?? shioneExpressions.happy;
+
     return (
-        <View className="px-6 pt-14 mb-5">
-            <Text className="text-3xl font-semibold text-[#6E5F9E]">
-                {greeting}, <Text className="text-4xl font-bold text-[#8854C0]">{name}</Text>
-            </Text>
-            <Text className="text-base mt-3">
-                {message}
-            </Text>
+        <View className="mb-5">
+            <View className="flex-row items-center">
+                <View className="flex-1 pr-2">
+                    <Text className="text-3xl font-semibold text-[#6E5F9E]">
+                        {greeting},{" "}
+                        <Text className="text-4xl font-bold text-[#8854C0]">
+                            {name}
+                        </Text>
+                    </Text>
+
+                    <Text className="text-base mt-3">
+                        {message}
+                    </Text>
+                </View>
+
+                <Image
+                    source={shioneImage}
+                    className="w-24 h-24"
+                    resizeMode="contain"
+                    accessibilityLabel={`Shione feeling ${moodKey}`}
+                />
+            </View>
         </View>
     );
 }

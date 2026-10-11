@@ -184,25 +184,14 @@ export default function ChatScreen({}) {
     <SafeAreaView className="flex-1 bg-[#FBF8FF]">
       <View className="flex-row items-center justify-between px-5 pt-3 pb-4 bg-[#FBF8FF] border-b border-purple-100">
         <View className="flex-row items-center">
-          <View
-            className="w-11 h-11 rounded-full bg-white items-center justify-center border border-purple-100 mr-3"
-            style={{
-              shadowColor: "#8854C0",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 6,
-              elevation: 2,
-            }}
-          >
-            <Text className="text-[20px]">🌸</Text>
-          </View>
+          
 
           <View>
             <Text className="text-[17px] font-semibold text-neutral-800">
+              
               Shione
             </Text>
             <View className="flex-row items-center mt-0.5">
-              <View className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5" />
               <Text className="text-[12px] text-neutral-400">
                 Here whenever you need me
               </Text>

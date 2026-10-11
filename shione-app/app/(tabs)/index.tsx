@@ -367,7 +367,12 @@ const syncService = new SyncService();
                     }}
                     className="px-5 pt-2 pb-4"
                 >
-                    {homeData && <Greeting name={homeData.user.name} />}
+                    {homeData && (
+            <Greeting
+                name={homeData.user.name}
+                mood={todayMood?.mood ?? null}
+             />
+)}
                 </Animated.View>
 
                 {/* ═══ STATS ROW ═══ */}

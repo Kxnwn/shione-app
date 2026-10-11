@@ -51,6 +51,8 @@ export default function MoodCard({ mood, note, onPress }: MoodCardProps) {
         shadowOpacity: 0.12,
         shadowRadius: 24,
         elevation: 6,
+        marginHorizontal: 10,
+        marginVertical: 6,
     }}
 >
                
