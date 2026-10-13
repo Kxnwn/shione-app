@@ -8,6 +8,8 @@ import cors from "cors"
 import chatRoutes from './routes/chat.routes.js'
 import analyticsRoutes from './routes/analytics.routes.js'
 import verseRoutes from './routes/verse.routes.js'
+import adminRoutes from "./routes/admin.routes.js";
+import usageRoutes from "./routes/usage.routes.js";
 const app = express();
 
 
@@ -22,6 +24,10 @@ app.use("/api/journals", journalRoutes)
 app.use("/api/chat", chatRoutes)
 app.use("/api/analytics", analyticsRoutes)
 app.use("/api/verse", verseRoutes);
+
+// ADMIN ROUTE
+app.use("/api/admin", adminRoutes);
+app.use("/api/usage", usageRoutes);
 
 app.get("/api/test", (req, res) => {
     res.json({ message: "Backend is working!" });
