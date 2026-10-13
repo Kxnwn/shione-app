@@ -3,18 +3,19 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from 'dotenv'
 import { Request, Response } from "express"
+import { randomBytes } from "node:crypto";
 dotenv.config()
 
 
 
 
 // <----- User Registration ----->
+
 export const registerUserService = async (
     name: string,
     email: string,
     password: string,
 ) => {
-
     if (!name.trim()) {
         throw new Error("Username cannot be empty");
     }
@@ -24,27 +25,35 @@ export const registerUserService = async (
     }
 
     const existingUser = await prisma.user.findUnique({
-        where: {
-            email
-        }
-    })
+        where: { email },
+    });
 
-    if (existingUser){
-        throw new Error("Email already exists")
+    if (existingUser) {
+        throw new Error("Email already exists");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Generate a stable, pseudonymous research code.
+    const researchCode =
+        `P-${randomBytes(6).toString("hex").toUpperCase()}`;
 
     const user = await prisma.user.create({
         data: {
             name,
             email,
             password: hashedPassword,
-        }
-    })
+            researchCode,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+        },
+    });
 
     return user;
-}
+};
 
 
 

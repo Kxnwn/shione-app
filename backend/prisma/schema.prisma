@@ -21,6 +21,7 @@ model User {
   moods     Mood[]
 
   usageSessions UsageSession[]
+  researchCode String? @unique
 }
 
 model Mood {

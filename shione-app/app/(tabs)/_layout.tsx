@@ -1,5 +1,8 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useUsageTracker } from "@/hooks/useUsageTracker";
+
+
 import {
     View,
     TouchableOpacity,
@@ -132,6 +135,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 }
 
 export default function TabLayout() {
+     useUsageTracker();
+
+     
     return (
         <Tabs
             tabBar={(props) => <CustomTabBar {...props} />}

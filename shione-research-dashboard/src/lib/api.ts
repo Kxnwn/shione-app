@@ -1,0 +1,22 @@
+
+import axios from "axios";
+
+const api = axios.create({
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    "https://shione-app.onrender.com/api",
+  timeout: 20000,
+});
+
+// Attach the admin token to requests when one is available.
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("shione_admin_token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+export default api;
